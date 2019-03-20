@@ -1,0 +1,10 @@
+Makefile
+bin/*
+obj/*
+*.o
+*.user*
+.directory
+*.orig
+qrc_*.cpp
+*.deb
+*.stash
