@@ -12,23 +12,29 @@ Photoplanner::Photoplanner(Fact *parent):
     connect(ApxApp::instance(), &ApxApp::loadingFinished, this, &Photoplanner::onLoadingFinished);
 
     ApxApp::instance()->engine()->loadQml("qrc:/qml/PhotoplannerPlugin.qml");
-
-    m_points->appendPoint(QGeoCoordinate(37.406367, -122.046297));
-    m_points->appendPoint(QGeoCoordinate(37.406583, -122.041839));
 }
 
 Points *Photoplanner::getPoints()
 {
-    return m_points;
+    return m_points.get();
 }
 
 void Photoplanner::onLoadingFinished()
 {
-    Fact *fMapAdd = AppRoot::instance()->findChild("apx.tools.map.add");
-    if (!fMapAdd)
+    Fact *mapAdd = AppRoot::instance()->findChild("apx.tools.map.add");
+    if(!mapAdd)
         return;
-    //create tool for map
-    PhotoplanEdit *f = new PhotoplanEdit(fMapAdd);
-//    f->setIcon("city");
-//    connect(f, &SiteEdit::addTriggered, f_add, &SiteEdit::addTriggered);
+
+    m_addPhotoplannerPoint = std::make_unique<Fact>(mapAdd, "photoplannerpoint", "Photoplanner point", "");
+    connect(m_addPhotoplannerPoint.get(), &Fact::triggered, this, &Photoplanner::onAddPhotoplannerPointTriggered);
+    connect(m_addPhotoplannerPoint.get(), &Fact::triggered, mapAdd->parentFact(), &Fact::actionTriggered);
+
+//    PhotoplanEdit *f = new PhotoplanEdit(mapAdd);
+}
+
+void Photoplanner::onAddPhotoplannerPointTriggered()
+{
+    Fact *fMap = AppRoot::instance()->findChild("apx.tools.map");
+    QGeoCoordinate coordinate = fMap->property("clickCoordinate").value<QGeoCoordinate>();
+    m_points->appendPoint(coordinate);
 }

@@ -2,6 +2,7 @@
 #define PHOTOPLANNER_H
 
 #include <QObject>
+#include <memory>
 #include "Fact.h"
 #include "points.h"
 
@@ -15,9 +16,11 @@ public:
 
 public slots:
     void onLoadingFinished();
+    void onAddPhotoplannerPointTriggered();
 
 private:
-    Points *m_points;
+    std::unique_ptr<Points> m_points;
+    std::unique_ptr<Fact> m_addPhotoplannerPoint;
 };
 
 #endif // PHOTOPLANNER_H

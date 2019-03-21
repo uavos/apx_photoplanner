@@ -16,12 +16,15 @@ public:
     void appendPoint(const QGeoCoordinate &point);
 
 protected:
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
     int rowCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
     QHash<int, QByteArray> roleNames() const;
 
 private:
     QVector<QGeoCoordinate> m_points;
+    QModelIndex m_rootIndex;
 };
 
 #endif // POINTS_H

@@ -20,7 +20,11 @@ MapItemGroup {
                 center: QtPositioning.coordinate(lat, lon)
                 color: "red"
                 radius: 10
-//                onCenterChanged: console.log(lat, lon)
+                onCenterChanged: {
+                    lat = center.latitude
+                    lon = center.longitude
+                }
+
                 MouseArea {
                     anchors.fill: parent
                     drag.target: control

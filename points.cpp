@@ -6,9 +6,34 @@ Points::Points()
 
 void Points::appendPoint(const QGeoCoordinate &point)
 {
-    beginResetModel();
+    beginInsertRows(m_rootIndex, m_points.size(), m_points.size());
     m_points.append(point);
-    endResetModel();
+    endInsertRows();
+}
+
+Qt::ItemFlags Points::flags(const QModelIndex &index) const
+{
+    Q_UNUSED(index);
+    return Qt::ItemIsEditable;
+}
+
+bool Points::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    int row = index.row();
+    if(row >= 0 && row < m_points.size())
+    {
+        if(role == LatRole)
+        {
+            m_points[row].setLatitude(value.toDouble());
+            return true;
+        }
+        else if(role == LonRole)
+        {
+            m_points[row].setLongitude(value.toDouble());
+            return true;
+        }
+    }
+    return false;
 }
 
 int Points::rowCount(const QModelIndex &parent) const
