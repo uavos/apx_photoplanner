@@ -8,5 +8,5 @@ PhotoplannerPlugin::PhotoplannerPlugin()
 
 QObject *PhotoplannerPlugin::createControl()
 {
-    return new Photoplanner();
+    return new ApxPhotoplanner();
 }

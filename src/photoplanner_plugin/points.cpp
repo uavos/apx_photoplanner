@@ -11,6 +11,11 @@ void Points::appendPoint(const QGeoCoordinate &point)
     endInsertRows();
 }
 
+QVector<QGeoCoordinate> Points::getAllPoints() const
+{
+    return m_points;
+}
+
 Qt::ItemFlags Points::flags(const QModelIndex &index) const
 {
     Q_UNUSED(index);

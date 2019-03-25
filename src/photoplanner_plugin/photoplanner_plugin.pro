@@ -33,6 +33,7 @@ LIBS += -L/home/pavel/sources/build-apx-release/gcs/release/install-root/usr/lib
     -lApxCore \
     -lApxData
 
+INCLUDEPATH += ../photoplanner_math
 LIBS += -L../../bin \
     -lphotoplanner_math
 

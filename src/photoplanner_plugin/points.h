@@ -14,6 +14,7 @@ public:
     };
     Points();
     void appendPoint(const QGeoCoordinate &point);
+    QVector<QGeoCoordinate> getAllPoints() const;
 
 protected:
     Qt::ItemFlags flags(const QModelIndex &index) const;
