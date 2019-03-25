@@ -5,37 +5,67 @@ import QtQml 2.12
 
 
 MapItemGroup {
-    id: photoplannerItems
+    id: root
     property var map: ui.map
+
+    property var pointsList: []
 
     z: -200
 
     MapItemView {
         id: points
         model: apx.tools.photoplanner.points
-        //        model: [{"lat": 37.406367, "lon": -122.046297}]
         delegate:
-            MapCircle {
-                id: control
-                center: QtPositioning.coordinate(lat, lon)
-                color: "red"
-                radius: 10
-                onCenterChanged: {
-                    lat = center.latitude
-                    lon = center.longitude
-                }
+            MapQuickItem {
+            id: control
+            coordinate: QtPositioning.coordinate(lat, lon)
+            onCoordinateChanged: {
+                lat = coordinate.latitude
+                lon = coordinate.longitude
+                var temp = root.pointsList
+                temp[index] = coordinate
+                root.pointsList = temp
+            }
+            sourceItem: Image {
+                source: "qrc:/icons/place.svg"
+                sourceSize.width: 40
+                sourceSize.height: 40
+            }
+            anchorPoint.x: 20
+            anchorPoint.y: 40
 
-                MouseArea {
-                    anchors.fill: parent
-                    drag.target: control
-                    drag.axis: Drag.XAndYAxis
-                }
+            MouseArea {
+                anchors.fill: parent
+                drag.target: control
+                drag.axis: Drag.XAndYAxis
+            }
+            Component.onCompleted: {
+                var temp = root.pointsList
+                temp.splice(index, 0, QtPositioning.coordinate(lat, lon))
+                root.pointsList = temp
+            }
+            Component.onDestruction: {
+                var temp = root.pointsList
+                temp.splice(index, 1)
+                root.pointsList = temp
+            }
         }
+    }
+
+    MapPolygon {
+        id: polygon
+        //        path: repeater.coords
+        path: root.pointsList
+        color: "blue"
+        opacity: 0.3
+        border.width: 3
+        border.color: Qt.darker("blue")
     }
 
     Component.onCompleted: {
         //        apx.tools.sites.lookup.area=Qt.binding(function(){return apx.tools.map.area})
         map.addMapItemView(points)
+        map.addMapItem(polygon)
     }
 
     //triggered site in lookup - focus on map
