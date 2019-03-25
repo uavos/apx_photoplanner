@@ -2,7 +2,6 @@
 
 #include "ApxApp.h"
 #include "AppRoot.h"
-#include "photoplanedit.h"
 #include <iostream>
 
 Photoplanner::Photoplanner(Fact *parent):

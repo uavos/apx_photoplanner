@@ -9,31 +9,32 @@ QT += quick widgets positioning
 TARGET = apx_photoplanner
 TEMPLATE = lib
 
-CONFIG += plugin c++14
+CONFIG += plugin c++14 silent
 
-DESTDIR = bin
-OBJECTS_DIR = obj
-UI_DIR = obj
-MOC_DIR = obj
+DESTDIR = ../../bin
+OBJECTS_DIR = ../../obj/plugin
+UI_DIR = $$OBJECTS_DIR
+MOC_DIR = $$OBJECTS_DIR
 target.path = ~/Документы/UAVOS/Plugins/
 INSTALLS += target
 
 SOURCES += \
     photoplannerplugin.cpp \
     photoplanner.cpp \
-    photoplanedit.cpp \
     points.cpp
 
 HEADERS += \
     photoplannerplugin.h \
     photoplanner.h \
-    photoplanedit.h \
     points.h
 
 INCLUDEPATH += /home/pavel/sources/build-apx-release/gcs/release/install-root/usr/lib/gcs/include/
 LIBS += -L/home/pavel/sources/build-apx-release/gcs/release/install-root/usr/lib/gcs/ \
     -lApxCore \
     -lApxData
+
+LIBS += -L../../bin \
+    -lphotoplanner_math
 
 RESOURCES += \
     stuff.qrc

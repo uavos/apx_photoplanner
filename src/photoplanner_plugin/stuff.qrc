@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>qml/PhotoplannerItem.qml</file>
         <file>qml/PhotoplannerMapItems.qml</file>
         <file>qml/PhotoplannerPlugin.qml</file>
         <file>icons/place.svg</file>
