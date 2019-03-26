@@ -10,22 +10,22 @@ MapItemGroup {
 
     property var pointsList: []
 
-    z: -200
+//    z: -200
 
     MapItemView {
-        id: points
-        model: apx.tools.photoplanner.points
-        delegate:
-            MapQuickItem {
-            id: control
-            coordinate: QtPositioning.coordinate(lat, lon)
-            onCoordinateChanged: {
-                lat = coordinate.latitude
-                lon = coordinate.longitude
-                var temp = root.pointsList
-                temp[index] = coordinate
-                root.pointsList = temp
-            }
+        id: borderPointsView
+        model: apx.tools.photoplanner.borderPoints
+        z: 1
+        delegate: MapQuickItem {
+            z: 1
+            id: borderPointDelegate
+            coordinate: coord
+//            onCoordinateChanged: {
+//                coord = coordinate
+//                var temp = root.pointsList
+//                temp[index] = coordinate
+//                root.pointsList = temp
+//            }
             sourceItem: Image {
                 source: "qrc:/icons/place.svg"
                 sourceSize.width: 40
@@ -36,12 +36,20 @@ MapItemGroup {
 
             MouseArea {
                 anchors.fill: parent
-                drag.target: control
+                drag.target: borderPointDelegate
                 drag.axis: Drag.XAndYAxis
+                z: parent.z
+                cursorShape: drag.active ? Qt.ClosedHandCursor : Qt.OpenHandCursor
+                onReleased: {
+                    coord = coordinate
+                    var temp = root.pointsList
+                    temp[index] = coordinate
+                    root.pointsList = temp
+                }
             }
             Component.onCompleted: {
                 var temp = root.pointsList
-                temp.splice(index, 0, QtPositioning.coordinate(lat, lon))
+                temp.splice(index, 0, coord)
                 root.pointsList = temp
             }
             Component.onDestruction: {
@@ -52,11 +60,31 @@ MapItemGroup {
         }
     }
 
+    MapItemView {
+        id: photoPrintsView
+        model: apx.tools.photoplanner.photoPrints
+        z: 0
+        delegate: MapPolygon {
+            z: 0
+            path: [p1, p2, p3, p4]
+            color: "green"
+            opacity: 0.5
+            border.width: 2
+            border.color: photoPrintArea.containsMouse ? "yellow" : Qt.darker("green")
+
+            MouseArea {
+                id: photoPrintArea
+                anchors.fill: parent
+                hoverEnabled: true
+                z: parent.z
+            }
+        }
+    }
+
     MapPolygon {
         id: polygon
-        //        path: repeater.coords
         path: root.pointsList
-        color: "blue"
+        color: "transparent"
         opacity: 0.3
         border.width: 3
         border.color: Qt.darker("blue")
@@ -64,15 +92,16 @@ MapItemGroup {
 
     Component.onCompleted: {
         //        apx.tools.sites.lookup.area=Qt.binding(function(){return apx.tools.map.area})
-        map.addMapItemView(points)
+        map.addMapItemView(borderPointsView)
+        map.addMapItemView(photoPrintsView)
         map.addMapItem(polygon)
     }
 
     //triggered site in lookup - focus on map
-    Connections {
+//    Connections {
         //        target: apx.tools.sites.lookup
         //        onItemTriggered: map.showCoordinate(QtPositioning.coordinate(modelData.lat,modelData.lon))
-    }
+//    }
 
 
     //CURRENT SITE LABEL

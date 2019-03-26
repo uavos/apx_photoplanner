@@ -4,29 +4,36 @@
 #include <QObject>
 #include <memory>
 #include "Fact.h"
-#include "points.h"
+#include "borderpoints.h"
+#include "photoprints.h"
 #include "PhotoUavModel.h"
 #include "PhotoCameraModel.h"
 
 class ApxPhotoplanner: public Fact
 {
     Q_OBJECT
-    Q_PROPERTY(Points *points READ getPoints CONSTANT)
+    Q_PROPERTY(BorderPoints *borderPoints READ getBorderPoints CONSTANT)
+    Q_PROPERTY(PhotoPrints *photoPrints READ getPhotoPrints CONSTANT)
 public:
     ApxPhotoplanner(Fact *parent = nullptr);
-    Points* getPoints();
+    BorderPoints* getBorderPoints();
+    PhotoPrints* getPhotoPrints();
 
 public slots:
     void onLoadingFinished();
     void onAddPhotoplannerPointTriggered();
 
 private:
-    std::unique_ptr<Points> m_points;
+    std::unique_ptr<BorderPoints> m_borderPoints;
+    std::unique_ptr<PhotoPrints> m_photoPrints;
     std::unique_ptr<Fact> m_addPhotoplannerPoint;
     aero_photo::PhotoCameraModel m_cameraModel;
     aero_photo::PhotoUavModel m_uavModel;
 
-    void onPointsRowsInserted(const QModelIndex &parent, int first, int last);
+    void calculatePhotoPlan();
+
+    void onBorderPointsRowsInserted(const QModelIndex &parent, int first, int last);
+    void onBorderPointsDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles);
 };
 
 #endif // APXPHOTOPLANNER_H

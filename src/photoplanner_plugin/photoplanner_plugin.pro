@@ -21,12 +21,14 @@ INSTALLS += target
 SOURCES += \
     photoplannerplugin.cpp \
     photoplanner.cpp \
-    points.cpp
+    borderpoints.cpp \
+    photoprints.cpp
 
 HEADERS += \
     photoplannerplugin.h \
     photoplanner.h \
-    points.h
+    borderpoints.h \
+    photoprints.h
 
 INCLUDEPATH += /home/pavel/sources/build-apx-release/gcs/release/install-root/usr/lib/gcs/include/
 LIBS += -L/home/pavel/sources/build-apx-release/gcs/release/install-root/usr/lib/gcs/ \

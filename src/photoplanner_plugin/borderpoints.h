@@ -1,18 +1,17 @@
-#ifndef POINTS_H
-#define POINTS_H
+#ifndef BORDERPOINTS_H
+#define BORDERPOINTS_H
 
 #include <QAbstractListModel>
 #include <QGeoCoordinate>
 
-class Points: public QAbstractListModel
+class BorderPoints: public QAbstractListModel
 {
     Q_OBJECT
 public:
     enum {
-        LatRole = Qt::UserRole + 1,
-        LonRole
+        CoordinateRole = Qt::UserRole + 1
     };
-    Points();
+    BorderPoints();
     void appendPoint(const QGeoCoordinate &point);
     QVector<QGeoCoordinate> getAllPoints() const;
 
@@ -28,4 +27,4 @@ private:
     QModelIndex m_rootIndex;
 };
 
-#endif // POINTS_H
+#endif // BORDERPOINTS_H
