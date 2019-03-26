@@ -2,7 +2,10 @@
 
 #include "ApxApp.h"
 #include "AppRoot.h"
+#include "Vehicles.h"
+#include "VehicleMission.h"
 #include "AreaPhotoPlanner.h"
+#include "Waypoint.h"
 #include <iostream>
 
 ApxPhotoplanner::ApxPhotoplanner(Fact *parent):
@@ -56,6 +59,7 @@ void ApxPhotoplanner::calculatePhotoPlan()
     float Py = 20;
     float altitude = 100;
     float azimuth = 0;
+    float velocity = 123;
     aero_photo::AreaPhotoRegion region(m_borderPoints->getAllPoints());
     try
     {
@@ -64,10 +68,27 @@ void ApxPhotoplanner::calculatePhotoPlan()
         {
             auto aeroPhotoPrints = planner->GetPhotoPrints();
             QVector<QVector<QGeoCoordinate>> photoPrints;
-            std::transform(aeroPhotoPrints.begin(), aeroPhotoPrints.end(), std::back_inserter(photoPrints), [](auto print){
-                return print.GetBorder();
-            });
+            auto lambda = [](auto print){return print.GetBorder();};
+            std::transform(aeroPhotoPrints.begin(), aeroPhotoPrints.end(), std::back_inserter(photoPrints), lambda);
             m_photoPrints->setPrints(photoPrints);
+
+            auto waypoints = planner->GetFlightPoints();
+            VehicleMission *mission = Vehicles::instance()->current()->f_mission;
+            mission->f_waypoints->f_clear->trigger();
+            for(auto w: waypoints)
+            {
+                Waypoint *wpItem = dynamic_cast<Waypoint*>(mission->f_waypoints->addObject(w));
+                if(wpItem)
+                {
+                    wpItem->f_altitude->setValue(w.altitude());
+                    wpItem->f_type->setValue(w.type());
+                    wpItem->f_actions->f_speed->setValue(velocity);
+                    wpItem->f_actions->f_shot->setValue(w.shotDistance() > 0 ? "yes" : "no");
+                    wpItem->f_actions->f_dshot->setValue(w.shotDistance());
+                }
+                else
+                    apxDebug() << "Can't retrieve waypoint item";
+            }
         }
         else
             apxDebug() << "Can't calculate photoplan";

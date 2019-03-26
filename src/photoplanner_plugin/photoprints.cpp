@@ -13,31 +13,6 @@ void PhotoPrints::setPrints(const QVector<QVector<QGeoCoordinate> > &prints)
     endResetModel();
 }
 
-Qt::ItemFlags PhotoPrints::flags(const QModelIndex &index) const
-{
-    Q_UNUSED(index);
-    return Qt::ItemIsEditable;
-}
-
-//bool PhotoPrints::setData(const QModelIndex &index, const QVariant &value, int role)
-//{
-//    int row = index.row();
-//    if(row >= 0 && row < m_prints.size())
-//    {
-//        if(role == LatRole)
-//        {
-//            m_prints[row].setLatitude(value.toDouble());
-//            return true;
-//        }
-//        else if(role == LonRole)
-//        {
-//            m_prints[row].setLongitude(value.toDouble());
-//            return true;
-//        }
-//    }
-//    return false;
-//}
-
 int PhotoPrints::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent); //flat list
