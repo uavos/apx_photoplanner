@@ -8,6 +8,7 @@
 #include "photoprints.h"
 #include "PhotoUavModel.h"
 #include "PhotoCameraModel.h"
+#include "photoplanneredit.h"
 
 class ApxPhotoplanner: public Fact
 {
@@ -27,6 +28,7 @@ private:
     std::unique_ptr<BorderPoints> m_borderPoints;
     std::unique_ptr<PhotoPrints> m_photoPrints;
     std::unique_ptr<Fact> m_addPhotoplannerPoint;
+    std::unique_ptr<PhotoplannerEdit> m_photoplannerEdit;
     aero_photo::PhotoCameraModel m_cameraModel;
     aero_photo::PhotoUavModel m_uavModel;
 

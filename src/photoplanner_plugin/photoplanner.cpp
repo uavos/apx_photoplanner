@@ -43,7 +43,7 @@ void ApxPhotoplanner::onLoadingFinished()
     connect(m_addPhotoplannerPoint.get(), &Fact::triggered, this, &ApxPhotoplanner::onAddPhotoplannerPointTriggered);
     connect(m_addPhotoplannerPoint.get(), &Fact::triggered, mapAdd->parentFact(), &Fact::actionTriggered);
 
-    //    PhotoplanEdit *f = new PhotoplanEdit(mapAdd);
+    m_photoplannerEdit = std::make_unique<PhotoplannerEdit>(mapAdd);
 }
 
 void ApxPhotoplanner::onAddPhotoplannerPointTriggered()
