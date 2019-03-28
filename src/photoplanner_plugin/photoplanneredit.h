@@ -5,7 +5,6 @@
 #include "Fact.h"
 #include "PhotoCameraModel.h"
 #include "PhotoUavModel.h"
-#include "cameraanduavdata.h"
 
 class PhotoplannerEdit: public Fact
 {
@@ -62,8 +61,6 @@ private:
     void calcUavRAndRoll();
     aero_photo::PhotoUavModel createUavModel();
     aero_photo::PhotoCameraModel createCameraModel();
-    CameraData createCameraDataFromGui();
-    UavData createUavDataFromGui();
 
     void saveCameraData();
     void loadCameraData(int idx);

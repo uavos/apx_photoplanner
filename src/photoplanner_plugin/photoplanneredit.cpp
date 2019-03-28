@@ -140,22 +140,10 @@ PhotoplannerEdit::PhotoplannerEdit(Fact *parent):
 
     onUavModelValueChanged();
     onCameraModelValueChanged();
-
     onMissionTypeValueChanged();
     calcWidthAndRuns();
     calcAltitudeAndGsd();
     calcUavRAndRoll();
-
-//    QJsonObject jsonObj = m_cameraParams->toJson(); // assume this has been populated with Json data
-
-//    QJsonDocument doc(jsonObj);
-//    QString strJson(doc.toJson(QJsonDocument::Compact));
-//    apxDebug() << strJson;
-
-//    QString data = "{\"camera_name\":\"trololo\",\"focus_range\":20,\"sensor_ax\":4200,\"sensor_ay\":2400,\"sensor_lx\":15,\"sensor_ly\":22.5}";
-//    QJsonDocument doc = QJsonDocument::fromJson(data.toUtf8());
-//    QJsonObject obj = doc.object();
-//    m_cameraParams->fromJson(obj);
 }
 
 void PhotoplannerEdit::calcWidthAndRuns()
@@ -312,15 +300,12 @@ void PhotoplannerEdit::onCameraModelValueChanged()
 
 void PhotoplannerEdit::onUavAnyParamChanged()
 {
-//    int idx = m_
     saveUavData();
-    loadUavData(m_uavModel->value().toInt());
 }
 
 void PhotoplannerEdit::onCameraAnyParamChanged()
 {
     saveCameraData();
-    loadCameraData(m_cameraModel->value().toInt());
 }
 
 aero_photo::PhotoCameraModel PhotoplannerEdit::createCameraModel()
@@ -333,36 +318,14 @@ aero_photo::PhotoCameraModel PhotoplannerEdit::createCameraModel()
     return model;
 }
 
-CameraData PhotoplannerEdit::createCameraDataFromGui()
-{
-    CameraData data;
-    data.name = m_cameraName->value().toString();
-    data.focus = m_focusRange->value().toInt();
-    data.sensorLx = m_sensorLx->value().toFloat();
-    data.sensorLy = m_sensorLy->value().toFloat();
-    data.sensorAx = m_sensorAx->value().toInt();
-    data.sensorAy = m_sensorAy->value().toInt();
-    return data;
-}
-
-UavData PhotoplannerEdit::createUavDataFromGui()
-{
-    UavData data;
-    data.name = m_uavName->value().toString();
-    data.flightSpeed = m_flightSpeed->value().toInt();
-    data.flightTime = m_flightTime->value().toInt();
-    data.maxRoll = m_maxRoll->value().toInt();
-    data.commRadius = m_commRadius->value().toInt();
-    return data;
-}
-
 void PhotoplannerEdit::saveCameraData()
 {
     int idx = m_cameraModel->value().toInt();
 
     QSettings *settings = AppSettings::settings();
     settings->beginGroup("photoplanner");
-    settings->setValue(QString("camera_%1").arg(idx), createCameraDataFromGui().toString());
+    QString str = QJsonDocument(m_cameraParams->toJson()).toJson(QJsonDocument::Compact);
+    settings->setValue(QString("camera_%1").arg(idx), str);
     settings->endGroup();
 }
 
@@ -372,15 +335,8 @@ void PhotoplannerEdit::loadCameraData(int idx)
     settings->beginGroup("photoplanner");
     QString str = settings->value(QString("camera_%1").arg(idx)).toString();
     settings->endGroup();
-    CameraData data;
-    data.fromString(str);
 
-    m_cameraName->setValue(data.name);
-    m_focusRange->setValue(data.focus);
-    m_sensorLx->setValue(data.sensorLx);
-    m_sensorLy->setValue(data.sensorLy);
-    m_sensorAx->setValue(data.sensorAx);
-    m_sensorAy->setValue(data.sensorAy);
+    m_cameraParams->fromJson(QJsonDocument::fromJson(str.toUtf8()).object());
 }
 
 void PhotoplannerEdit::saveUavData()
@@ -389,7 +345,8 @@ void PhotoplannerEdit::saveUavData()
 
     QSettings *settings = AppSettings::settings();
     settings->beginGroup("photoplanner");
-    settings->setValue(QString("uav_%1").arg(idx), createUavDataFromGui().toString());
+    QString str = QJsonDocument(m_uavParams->toJson()).toJson(QJsonDocument::Compact);
+    settings->setValue(QString("uav_%1").arg(idx), str);
     settings->endGroup();
 }
 
@@ -400,13 +357,7 @@ void PhotoplannerEdit::loadUavData(int idx)
     QString str = settings->value(QString("uav_%1").arg(idx)).toString();
     settings->endGroup();
 
-    UavData data;
-    data.fromString(str);
-    m_uavName->setValue(data.name);
-    m_flightTime->setValue(data.flightTime);
-    m_flightSpeed->setValue(data.flightSpeed);
-    m_maxRoll->setValue(data.maxRoll);
-    setValueLikeANinja(m_commRadius.get(), data.commRadius);
+    m_uavParams->fromJson(QJsonDocument::fromJson(str.toUtf8()).object());
 }
 
 QStringList PhotoplannerEdit::getUavNames()
@@ -418,9 +369,8 @@ QStringList PhotoplannerEdit::getUavNames()
     {
         QString key = QString("uav_%1").arg(i);
         QString str = settings->value(key).toString();
-        UavData data;
-        data.fromString(str);
-        names.append(data.name);
+        auto object = QJsonDocument::fromJson(str.toUtf8()).object();
+        names.append(object["uav_name"].toString());
     }
     settings->endGroup();
     return names;
@@ -435,9 +385,8 @@ QStringList PhotoplannerEdit::getCameraNames()
     {
         QString key = QString("camera_%1").arg(i);
         QString str = settings->value(key).toString();
-        CameraData data;
-        data.fromString(str);
-        names.append(data.name);
+        auto object = QJsonDocument::fromJson(str.toUtf8()).object();
+        names.append(object["camera_name"].toString());
     }
     settings->endGroup();
     return names;
@@ -445,22 +394,23 @@ QStringList PhotoplannerEdit::getCameraNames()
 
 void PhotoplannerEdit::writeDefaultUavAndCameraData()
 {
-    QList<CameraData> cameraData = {
-        {"Sony A6000 [Sel20F28]", 20, 15, 22.5, 3648, 5472},
-        {"Sony A6000 [Sel35F18]", 35, 15, 22.5, 3648, 5472},
-        {"Sony S600 35", 35, 15, 22.5, 2112, 2816},
-        {"Sony S600 50", 50, 15, 22.5, 2112, 2816},
-        {"User camera 1", 50, 15, 22.5, 2112, 2816},
-        {"User camera 2", 50, 15, 22.5, 2112, 2816},
-        {"User camera 3", 50, 15, 22.5, 2112, 2816}
+    QList<QJsonObject> cameraData = {
+        {{"camera_name", "Sony A6000 [Sel20F28]"}, {"focus_range", 20}, {"sensor_lx", 15}, {"sensor_ly", 22.5}, {"sensor_ax", 3648}, {"sensor_ay", 5472}},
+        {{"camera_name", "Sony A6000 [Sel35F18]"}, {"focus_range", 35}, {"sensor_lx", 15}, {"sensor_ly", 22.5}, {"sensor_ax", 3648}, {"sensor_ay", 5472}},
+        {{"camera_name", "Sony S600 35"}, {"focus_range", 35}, {"sensor_lx", 15}, {"sensor_ly", 22.5}, {"sensor_ax", 2112}, {"sensor_ay", 2816}},
+        {{"camera_name", "Sony S600 50"}, {"focus_range", 50}, {"sensor_lx", 15}, {"sensor_ly", 22.5}, {"sensor_ax", 2112}, {"sensor_ay", 2816}},
+        {{"camera_name", "User camera 1"}, {"focus_range", 50}, {"sensor_lx", 15}, {"sensor_ly", 22.5}, {"sensor_ax", 2112}, {"sensor_ay", 2816}},
+        {{"camera_name", "User camera 2"}, {"focus_range", 50}, {"sensor_lx", 15}, {"sensor_ly", 22.5}, {"sensor_ax", 2112}, {"sensor_ay", 2816}},
+        {{"camera_name", "User camera 3"}, {"focus_range", 50}, {"sensor_lx", 15}, {"sensor_ly", 22.5}, {"sensor_ax", 2112}, {"sensor_ay", 2816}}
     };
-    QList<UavData> uavData = {
-        {"Plane 1", 60, 15, 30, 25},
-        {"Plane 2", 120, 20, 30, 50},
-        {"Plane 3", 120, 20, 40, 60},
-        {"Quadro 1", 40, 10, 90, 5},
-        {"Quadro 2", 60, 30, 90, 15},
-        {"Quadro 3", 60, 30, 80, 15}
+
+    QList<QJsonObject> uavData = {
+        {{"uav_name", "Plane 1"}, {"comm_radius", 25}, {"flight_speed", 15}, {"flight_time", 60}, {"max_roll", 30}},
+        {{"uav_name", "Plane 2"}, {"comm_radius", 50}, {"flight_speed", 20}, {"flight_time", 120}, {"max_roll", 30}},
+        {{"uav_name", "Plane 3"}, {"comm_radius", 60}, {"flight_speed", 20}, {"flight_time", 120}, {"max_roll", 40}},
+        {{"uav_name", "Quadro 1"}, {"comm_radius", 5}, {"flight_speed", 10}, {"flight_time", 40}, {"max_roll", 90}},
+        {{"uav_name", "Quadro 2"}, {"comm_radius", 15}, {"flight_speed", 30}, {"flight_time", 60}, {"max_roll", 90}},
+        {{"uav_name", "Quadro 3"}, {"comm_radius", 15}, {"flight_speed", 30}, {"flight_time", 60}, {"max_roll", 80}},
     };
 
     QSettings *settings = AppSettings::settings();
@@ -470,7 +420,10 @@ void PhotoplannerEdit::writeDefaultUavAndCameraData()
         QString key = QString("camera_%1").arg(i);
         QString str = settings->value(key).toString();
         if(str.isEmpty())
-            settings->setValue(key, cameraData[i].toString());
+        {
+            str = QJsonDocument(cameraData[i]).toJson(QJsonDocument::Compact);
+            settings->setValue(key, str);
+        }
     }
 
     for(int i = 0; i < uavData.size(); i++)
@@ -478,7 +431,10 @@ void PhotoplannerEdit::writeDefaultUavAndCameraData()
         QString key = QString("uav_%1").arg(i);
         QString str = settings->value(key).toString();
         if(str.isEmpty())
-            settings->setValue(key, uavData[i].toString());
+        {
+            str = QJsonDocument(uavData[i]).toJson(QJsonDocument::Compact);
+            settings->setValue(key, str);
+        }
     }
     settings->endGroup();
 }

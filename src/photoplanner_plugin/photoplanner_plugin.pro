@@ -23,16 +23,14 @@ SOURCES += \
     photoplanner.cpp \
     borderpoints.cpp \
     photoprints.cpp \
-    photoplanneredit.cpp \
-    cameraanduavdata.cpp
+    photoplanneredit.cpp
 
 HEADERS += \
     photoplannerplugin.h \
     photoplanner.h \
     borderpoints.h \
     photoprints.h \
-    photoplanneredit.h \
-    cameraanduavdata.h
+    photoplanneredit.h
 
 INCLUDEPATH += /home/pavel/sources/build-apx-release/gcs/release/install-root/usr/lib/gcs/include/
 LIBS += -L/home/pavel/sources/build-apx-release/gcs/release/install-root/usr/lib/gcs/ \
