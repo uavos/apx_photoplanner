@@ -301,11 +301,23 @@ void PhotoplannerEdit::onCameraModelValueChanged()
 void PhotoplannerEdit::onUavAnyParamChanged()
 {
     saveUavData();
+    int idx = m_uavModel->value().toInt();
+    if(m_uavName->value().toString() != m_uavModel->enumText(idx))
+    {
+        m_uavModel->setEnumStrings(getUavNames());
+        m_uavModel->setValue(idx);
+    }
 }
 
 void PhotoplannerEdit::onCameraAnyParamChanged()
 {
     saveCameraData();
+    int idx = m_cameraModel->value().toInt();
+    if(m_cameraName->value().toString() != m_cameraModel->enumText(idx))
+    {
+        m_cameraModel->setEnumStrings(getCameraNames());
+        m_cameraModel->setValue(idx);
+    }
 }
 
 aero_photo::PhotoCameraModel PhotoplannerEdit::createCameraModel()
