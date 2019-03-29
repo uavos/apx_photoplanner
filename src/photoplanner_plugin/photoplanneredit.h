@@ -60,6 +60,8 @@ private:
     std::unique_ptr<Fact> m_commRadius;
     std::unique_ptr<Fact> m_maxRoll;
     std::unique_ptr<Fact> m_maneuverR;
+    //
+    std::unique_ptr<FactAction> m_applyButton;
 
     int calcWidth();
     int calcRuns();
@@ -98,6 +100,9 @@ private slots:
     void onCameraModelValueChanged();
     void onUavAnyParamChanged();
     void onCameraAnyParamChanged();
+
+signals:
+    void applyClicked();
 };
 
 #endif // PHOTOPLANNEREDIT_H

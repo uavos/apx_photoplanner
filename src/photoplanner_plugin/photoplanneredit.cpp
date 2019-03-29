@@ -40,11 +40,41 @@ PhotoplannerEdit::PhotoplannerEdit(Fact *parent):
     m_commRadius(new Fact(m_uavParams.get(), "comm_radius", "Comm radius", "", Int)),
     m_maxRoll(new Fact(m_uavParams.get(), "max_roll", "Max roll", "", Int)),
     m_maneuverR(new Fact(m_uavParams.get(), "maneuver_r", "Maneuver R", "", Int)),
+    //
+    m_applyButton(new FactAction(this, "update", "Update", "", "", FactAction::ActionApply)),
     m_ninja(false)
 {
+    m_missionType->setIcon("map");
+    m_cameraModel->setIcon("camera");
+    m_uavModel->setIcon("airplane");
+    m_cameraName->setIcon("camera");
+    m_uavName->setIcon("airplane");
+    m_flightSpeed->setIcon("speedometer");
+    m_flightTime->setIcon("clock");
+    m_commRadius->setIcon("vector-radius");
+    m_azimuth->setIcon("compass");
+    m_focusRange->setIcon("image-filter-center-focus");
+    m_altitude->setIcon("airplane-takeoff");
+    m_extendAlignment->setIcon("shape-polygon-plus");
+    m_sensorLx->setIcon("camera-metering-matrix");
+    m_sensorLy->setIcon("camera-metering-matrix");
+    m_sensorAx->setIcon("camera-metering-spot");
+    m_sensorAy->setIcon("camera-metering-spot");
+    m_longitudinalOverlap->setIcon("vector-intersection");
+    m_transverseOverlap->setIcon("vector-intersection");
+    m_gsd->setIcon("details");
+    m_maneuverR->setIcon("radius");
+    m_maxRoll->setIcon("rotate-right");
+    m_maneuverAlignment->setIcon("call-missed");
+    m_maneuverR->setIcon("map-marker-distance");
+
+    setIcon("settings");
     model()->setFlat(true);
 
     m_missionType->setEnumStrings({"area", "linear"}, {mtArea, mtLinear});
+
+    m_extendAlignment->setValue(true);
+    m_maneuverAlignment->setValue(true);
 
     m_longitudinalOverlap->setMin(0);
     m_longitudinalOverlap->setMax(95);
@@ -133,6 +163,8 @@ PhotoplannerEdit::PhotoplannerEdit(Fact *parent):
 
     for(int i = 0; i < m_cameraParams->size(); i++)
         connect(m_cameraParams->child(i), &Fact::valueChanged, this, &PhotoplannerEdit::onCameraAnyParamChanged);
+
+    connect(m_applyButton.get(), &FactAction::triggered, this, &PhotoplannerEdit::applyClicked);
 
     writeDefaultUavAndCameraData();
     m_uavModel->setEnumStrings(getUavNames());

@@ -34,6 +34,16 @@ PhotoPrints *ApxPhotoplanner::getPhotoPrints()
     return m_photoPrints.get();
 }
 
+QString ApxPhotoplanner::getMissionType() const
+{
+    if(m_photoplannerEdit->getMissionType() == PhotoplannerEdit::mtArea)
+        return "area";
+    else if(m_photoplannerEdit->getMissionType() == PhotoplannerEdit::mtLinear)
+        return "linear";
+    else
+        return "unknown";
+}
+
 void ApxPhotoplanner::onLoadingFinished()
 {
     Fact *mapAdd = AppRoot::instance()->findChild("apx.tools.map.add");
@@ -41,10 +51,12 @@ void ApxPhotoplanner::onLoadingFinished()
         return;
 
     m_addPhotoplannerPoint = std::make_unique<Fact>(mapAdd, "photoplannerpoint", "Photoplanner point", "");
+    m_addPhotoplannerPoint->setIcon("map-marker-plus");
     connect(m_addPhotoplannerPoint.get(), &Fact::triggered, this, &ApxPhotoplanner::onAddPhotoplannerPointTriggered);
     connect(m_addPhotoplannerPoint.get(), &Fact::triggered, mapAdd->parentFact(), &Fact::actionTriggered);
 
     m_photoplannerEdit = std::make_unique<PhotoplannerEdit>(mapAdd);
+    connect(m_photoplannerEdit.get(), &PhotoplannerEdit::applyClicked, this, &ApxPhotoplanner::calculatePhotoPlan);
 }
 
 void ApxPhotoplanner::onAddPhotoplannerPointTriggered()
@@ -56,6 +68,8 @@ void ApxPhotoplanner::onAddPhotoplannerPointTriggered()
 
 void ApxPhotoplanner::calculatePhotoPlan()
 {
+    emit missionTypeChanged();
+
     std::unique_ptr<aero_photo::PhotoPlanner> planner;
     auto uavModel = m_photoplannerEdit->getUavModel();
     auto cameraModel = m_photoplannerEdit->getCameraModel();
