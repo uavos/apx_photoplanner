@@ -21,6 +21,7 @@ public:
     BorderPoints* getBorderPoints();
     PhotoPrints* getPhotoPrints();
     QString getMissionType() const;
+    Q_INVOKABLE void createRemoveDialog(QGeoCoordinate coordinate);
 
 private:
     std::unique_ptr<BorderPoints> m_borderPoints;
@@ -34,6 +35,7 @@ private slots:
     void onLoadingFinished();
     void onAddPhotoplannerPointTriggered();
     void onBorderPointsRowsInserted(const QModelIndex &parent, int first, int last);
+    void onBorderPointsRowsRemoved(const QModelIndex &parent, int first, int last);
     void onBorderPointsDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles);
     void calculatePhotoPlan();
 

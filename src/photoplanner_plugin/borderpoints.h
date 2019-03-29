@@ -13,6 +13,7 @@ public:
     };
     BorderPoints();
     void appendPoint(const QGeoCoordinate &point);
+    void removePoint(QGeoCoordinate coordinate);
     QVector<QGeoCoordinate> getAllPoints() const;
 
 protected:

@@ -8,6 +8,7 @@
 #include "LinearPhotoPlanner.h"
 #include "Waypoint.h"
 #include <iostream>
+#include <QMessageBox>
 
 ApxPhotoplanner::ApxPhotoplanner(Fact *parent):
     Fact(parent, "photoplanner", "Photoplanner", "", Group),
@@ -19,6 +20,7 @@ ApxPhotoplanner::ApxPhotoplanner(Fact *parent):
     connect(ApxApp::instance(), &ApxApp::loadingFinished, this, &ApxPhotoplanner::onLoadingFinished);
 
     connect(m_borderPoints.get(), &BorderPoints::rowsInserted, this, &ApxPhotoplanner::onBorderPointsRowsInserted);
+    connect(m_borderPoints.get(), &BorderPoints::rowsRemoved, this, &ApxPhotoplanner::onBorderPointsRowsRemoved);
     connect(m_borderPoints.get(), &BorderPoints::dataChanged, this, &ApxPhotoplanner::onBorderPointsDataChanged);
 
     ApxApp::instance()->engine()->loadQml("qrc:/qml/PhotoplannerPlugin.qml");
@@ -42,6 +44,16 @@ QString ApxPhotoplanner::getMissionType() const
         return "linear";
     else
         return "unknown";
+}
+
+void ApxPhotoplanner::createRemoveDialog(QGeoCoordinate coordinate)
+{
+    auto button = QMessageBox::question(nullptr, "Remove", "Remove this point?<br>" + coordinate.toString(),
+                                        QMessageBox::Yes, QMessageBox::No);
+    if(button == QMessageBox::Yes)
+    {
+        m_borderPoints->removePoint(coordinate);
+    }
 }
 
 void ApxPhotoplanner::onLoadingFinished()
@@ -140,6 +152,15 @@ void ApxPhotoplanner::calculatePhotoPlan()
 }
 
 void ApxPhotoplanner::onBorderPointsRowsInserted(const QModelIndex &parent, int first, int last)
+{
+    Q_UNUSED(parent);
+    Q_UNUSED(first);
+    Q_UNUSED(last);
+
+    calculatePhotoPlan();
+}
+
+void ApxPhotoplanner::onBorderPointsRowsRemoved(const QModelIndex &parent, int first, int last)
 {
     Q_UNUSED(parent);
     Q_UNUSED(first);

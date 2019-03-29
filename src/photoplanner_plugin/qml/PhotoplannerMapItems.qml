@@ -38,6 +38,7 @@ MapItemGroup {
                     temp[index] = coordinate
                     root.pointsList = temp
                 }
+                onClicked: apx.tools.photoplanner.createRemoveDialog(borderPointDelegate.coordinate)
             }
             Component.onCompleted: {
                 var temp = root.pointsList
@@ -45,6 +46,7 @@ MapItemGroup {
                 root.pointsList = temp
             }
             Component.onDestruction: {
+                var index = root.pointsList.indexOf(coordinate)
                 var temp = root.pointsList
                 temp.splice(index, 1)
                 root.pointsList = temp
@@ -60,7 +62,6 @@ MapItemGroup {
             z: 0
             path: [p1, p2, p3, p4]
             color: "#2021be2b"
-//            opacity: 0.5
             border.width: 2
             border.color: photoPrintArea.containsMouse ? "yellow" : "#8021be2b"
 

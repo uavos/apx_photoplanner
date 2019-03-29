@@ -11,6 +11,13 @@ void BorderPoints::appendPoint(const QGeoCoordinate &point)
     endInsertRows();
 }
 
+void BorderPoints::removePoint(QGeoCoordinate coordinate)
+{
+    beginRemoveRows(m_rootIndex, m_points.indexOf(coordinate), m_points.indexOf(coordinate));
+    m_points.removeOne(coordinate);
+    endRemoveRows();
+}
+
 QVector<QGeoCoordinate> BorderPoints::getAllPoints() const
 {
     return m_points;

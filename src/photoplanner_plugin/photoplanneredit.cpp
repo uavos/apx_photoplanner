@@ -208,7 +208,6 @@ int PhotoplannerEdit::calcGsd()
 {
     auto model = getCameraModel();
     int gsd = model.CalcGsd(m_altitude->value().toInt()) * 100;
-    apxDebug() << "calculateGsd" << gsd;
     return gsd;
 }
 
@@ -216,7 +215,6 @@ int PhotoplannerEdit::calcAltitude()
 {
     auto model = getCameraModel();
     int altitude = model.CalcH(m_gsd->value().toInt());
-    apxDebug() << "calculateAltitude";
     return altitude;
 }
 
