@@ -154,7 +154,7 @@ void PhotoplannerEdit::calcWidthAndRuns()
 
 int PhotoplannerEdit::calcWidth()
 {
-    auto model = createCameraModel();
+    auto model = getCameraModel();
     int width = model.CalcLinearWidth(m_altitude->value().toInt(),
                                       m_longitudinalOverlap->value().toInt(),
                                       m_transverseOverlap->value().toInt(),
@@ -164,7 +164,7 @@ int PhotoplannerEdit::calcWidth()
 
 int PhotoplannerEdit::calcRuns()
 {
-    auto model = createCameraModel();
+    auto model = getCameraModel();
     int runs = model.CalcLinearRuns(m_altitude->value().toInt(),
                                     m_longitudinalOverlap->value().toInt(),
                                     m_transverseOverlap->value().toInt(),
@@ -174,7 +174,7 @@ int PhotoplannerEdit::calcRuns()
 
 int PhotoplannerEdit::calcGsd()
 {
-    auto model = createCameraModel();
+    auto model = getCameraModel();
     int gsd = model.CalcGsd(m_altitude->value().toInt()) * 100;
     apxDebug() << "calculateGsd" << gsd;
     return gsd;
@@ -182,7 +182,7 @@ int PhotoplannerEdit::calcGsd()
 
 int PhotoplannerEdit::calcAltitude()
 {
-    auto model = createCameraModel();
+    auto model = getCameraModel();
     int altitude = model.CalcH(m_gsd->value().toInt());
     apxDebug() << "calculateAltitude";
     return altitude;
@@ -202,19 +202,19 @@ void PhotoplannerEdit::calcUavRAndRoll()
 
 int PhotoplannerEdit::calcUavRoll()
 {
-    auto model = createUavModel();
+    auto model = getUavModel();
     int maxRoll = aero_photo::R2D(model.CalcUavMaxRollOnManeuverR(m_maneuverR->value().toInt()));
     return maxRoll;
 }
 
 int PhotoplannerEdit::calcUavR()
 {
-    auto model = createUavModel();
+    auto model = getUavModel();
     int uavR = model.CalcUavManeuverROnMaxRoll(aero_photo::D2R(m_maxRoll->value().toInt()));
     return uavR;
 }
 
-aero_photo::PhotoUavModel PhotoplannerEdit::createUavModel()
+aero_photo::PhotoUavModel PhotoplannerEdit::getUavModel()
 {
     aero_photo::PhotoUavModel model(m_flightSpeed->value().toInt(),
                                     aero_photo::D2R(m_maxRoll->value().toInt()));
@@ -320,7 +320,7 @@ void PhotoplannerEdit::onCameraAnyParamChanged()
     }
 }
 
-aero_photo::PhotoCameraModel PhotoplannerEdit::createCameraModel()
+aero_photo::PhotoCameraModel PhotoplannerEdit::getCameraModel()
 {
     aero_photo::PhotoCameraModel model(m_focusRange->value().toInt() / 100.0,
                                        m_sensorLx->value().toInt() / 100.0,
@@ -328,6 +328,46 @@ aero_photo::PhotoCameraModel PhotoplannerEdit::createCameraModel()
                                        m_sensorAx->value().toInt() / 100.0,
                                        m_sensorAy->value().toInt() / 100.0);
     return model;
+}
+
+int PhotoplannerEdit::getMissionType()
+{
+    return m_missionType->value().toInt();
+}
+
+int PhotoplannerEdit::getAltitude() const
+{
+    return m_altitude->value().toInt();
+}
+
+int PhotoplannerEdit::getAzimuth() const
+{
+    return m_azimuth->value().toInt();
+}
+
+int PhotoplannerEdit::getLongitudinalOverlap() const
+{
+    return m_longitudinalOverlap->value().toInt();
+}
+
+int PhotoplannerEdit::getTransverseOverlap() const
+{
+    return m_transverseOverlap->value().toInt();
+}
+
+int PhotoplannerEdit::getExtentBorderValue() const
+{
+    return m_extendAlignment->value().toInt();
+}
+
+int PhotoplannerEdit::getWidth() const
+{
+    return m_width->value().toInt();
+}
+
+int PhotoplannerEdit::getVelocity() const
+{
+    return m_flightSpeed->value().toInt();
 }
 
 void PhotoplannerEdit::saveCameraData()

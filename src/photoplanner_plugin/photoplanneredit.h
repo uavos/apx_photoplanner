@@ -17,6 +17,17 @@ public:
     };
     PhotoplannerEdit(Fact *parent);
 
+    aero_photo::PhotoUavModel getUavModel();
+    aero_photo::PhotoCameraModel getCameraModel();
+    int getMissionType();
+    int getAltitude() const;
+    int getAzimuth() const;
+    int getLongitudinalOverlap() const;
+    int getTransverseOverlap() const;
+    int getExtentBorderValue() const;
+    int getWidth() const;
+    int getVelocity() const;
+
 private:
     std::unique_ptr<Fact> m_plannerParams;
     std::unique_ptr<Fact> m_cameraParams;
@@ -59,8 +70,6 @@ private:
     void calcWidthAndRuns();
     void calcAltitudeAndGsd();
     void calcUavRAndRoll();
-    aero_photo::PhotoUavModel createUavModel();
-    aero_photo::PhotoCameraModel createCameraModel();
 
     void saveCameraData();
     void loadCameraData(int idx);

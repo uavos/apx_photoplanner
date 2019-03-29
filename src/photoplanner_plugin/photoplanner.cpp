@@ -5,6 +5,7 @@
 #include "Vehicles.h"
 #include "VehicleMission.h"
 #include "AreaPhotoPlanner.h"
+#include "LinearPhotoPlanner.h"
 #include "Waypoint.h"
 #include <iostream>
 
@@ -55,47 +56,72 @@ void ApxPhotoplanner::onAddPhotoplannerPointTriggered()
 
 void ApxPhotoplanner::calculatePhotoPlan()
 {
-    float Px = 20;
-    float Py = 20;
-    float altitude = 100;
-    float azimuth = 0;
-    float velocity = 123;
-    aero_photo::AreaPhotoRegion region(m_borderPoints->getAllPoints());
-    try
+    std::unique_ptr<aero_photo::PhotoPlanner> planner;
+    auto uavModel = m_photoplannerEdit->getUavModel();
+    auto cameraModel = m_photoplannerEdit->getCameraModel();
+    if(m_photoplannerEdit->getMissionType() == PhotoplannerEdit::mtArea)
     {
-        auto planner = std::make_unique<aero_photo::AreaPhotoPlanner>(m_uavModel, m_cameraModel, region);
-        if(planner->Calculate(altitude, Px, Py, azimuth, 1))
+        try
         {
-            auto aeroPhotoPrints = planner->GetPhotoPrints();
-            QVector<QVector<QGeoCoordinate>> photoPrints;
-            auto lambda = [](auto print){return print.GetBorder();};
-            std::transform(aeroPhotoPrints.begin(), aeroPhotoPrints.end(), std::back_inserter(photoPrints), lambda);
-            m_photoPrints->setPrints(photoPrints);
+            int altitude = m_photoplannerEdit->getAltitude();
+            int azimuth = m_photoplannerEdit->getAzimuth();
+            int px = m_photoplannerEdit->getLongitudinalOverlap();
+            int py = m_photoplannerEdit->getTransverseOverlap();
+            int extentBorder = m_photoplannerEdit->getExtentBorderValue();
 
-            auto waypoints = planner->GetFlightPoints();
-            VehicleMission *mission = Vehicles::instance()->current()->f_mission;
-            mission->f_waypoints->f_clear->trigger();
-            for(auto w: waypoints)
-            {
-                Waypoint *wpItem = dynamic_cast<Waypoint*>(mission->f_waypoints->addObject(w));
-                if(wpItem)
-                {
-                    wpItem->f_altitude->setValue(w.altitude());
-                    wpItem->f_type->setValue(w.type());
-                    wpItem->f_actions->f_speed->setValue(velocity);
-                    wpItem->f_actions->f_shot->setValue(w.shotDistance() > 0 ? "yes" : "no");
-                    wpItem->f_actions->f_dshot->setValue(w.shotDistance());
-                }
-                else
-                    apxDebug() << "Can't retrieve waypoint item";
-            }
+            aero_photo::AreaPhotoRegion region(m_borderPoints->getAllPoints());
+            planner = std::make_unique<aero_photo::AreaPhotoPlanner>(uavModel, cameraModel, region);
+            static_cast<aero_photo::AreaPhotoPlanner*>(planner.get())->Calculate(altitude, px, py, azimuth, extentBorder);
+        }
+        catch(std::exception &e)
+        {
+            apxDebug() << e.what();
+            return;
+        }
+    }
+    else if(m_photoplannerEdit->getMissionType() == PhotoplannerEdit::mtLinear)
+    {
+        try
+        {
+            int altitude = m_photoplannerEdit->getAltitude();
+            int px = m_photoplannerEdit->getLongitudinalOverlap();
+            int py = m_photoplannerEdit->getTransverseOverlap();
+            int width = m_photoplannerEdit->getWidth();
+
+            aero_photo::LinearPhotoRegion region(m_borderPoints->getAllPoints());
+            planner = std::make_unique<aero_photo::LinearPhotoPlanner>(uavModel, cameraModel, region);
+            static_cast<aero_photo::LinearPhotoPlanner*>(planner.get())->Calculate(altitude, px, py, width);
+        }
+        catch(std::exception &e)
+        {
+            apxDebug() << e.what();
+            return;
+        }
+    }
+
+    auto aeroPhotoPrints = planner->GetPhotoPrints();
+    QVector<QVector<QGeoCoordinate>> photoPrints;
+    auto lambda = [](auto print){return print.GetBorder();};
+    std::transform(aeroPhotoPrints.begin(), aeroPhotoPrints.end(), std::back_inserter(photoPrints), lambda);
+    m_photoPrints->setPrints(photoPrints);
+
+    int velocity = m_photoplannerEdit->getVelocity();
+    auto waypoints = planner->GetFlightPoints();
+    VehicleMission *mission = Vehicles::instance()->current()->f_mission;
+    mission->f_waypoints->f_clear->trigger();
+    for(auto w: waypoints)
+    {
+        Waypoint *wpItem = dynamic_cast<Waypoint*>(mission->f_waypoints->addObject(w));
+        if(wpItem)
+        {
+            wpItem->f_altitude->setValue(w.altitude());
+            wpItem->f_type->setValue(w.type());
+            wpItem->f_actions->f_speed->setValue(velocity);
+            wpItem->f_actions->f_shot->setValue(w.shotDistance() > 0 ? "yes" : "no");
+            wpItem->f_actions->f_dshot->setValue(w.shotDistance());
         }
         else
-            apxDebug() << "Can't calculate photoplan";
-    }
-    catch(std::exception &e)
-    {
-        std::cerr << e.what() << std::endl;
+            apxDebug() << "Can't retrieve waypoint item";
     }
 }
 
