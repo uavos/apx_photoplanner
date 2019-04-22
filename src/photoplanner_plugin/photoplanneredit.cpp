@@ -5,7 +5,7 @@
 #include "ApxApp.h"
 #include "PhotoCameraModel.h"
 #include "PhotoGeoCalcs.h"
-#include "AppSettings.h"
+#include "App/AppSettings.h"
 
 PhotoplannerEdit::PhotoplannerEdit(Fact *parent):
     Fact(parent, "photoplanner_edit", "Photoplanner", "Photoplanenr parameters", Group),

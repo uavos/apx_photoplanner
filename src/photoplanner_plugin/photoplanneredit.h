@@ -2,7 +2,7 @@
 #define PHOTOPLANNEREDIT_H
 
 #include <memory>
-#include "Fact.h"
+#include "Fact/Fact.h"
 #include "PhotoCameraModel.h"
 #include "PhotoUavModel.h"
 

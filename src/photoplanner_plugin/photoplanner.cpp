@@ -1,12 +1,12 @@
 #include "photoplanner.h"
 
 #include "ApxApp.h"
-#include "AppRoot.h"
-#include "Vehicles.h"
-#include "VehicleMission.h"
+#include "App/AppRoot.h"
+#include "Vehicles/Vehicles.h"
+#include "Mission/VehicleMission.h"
 #include "AreaPhotoPlanner.h"
 #include "LinearPhotoPlanner.h"
-#include "Waypoint.h"
+#include "Mission/Waypoint.h"
 #include <iostream>
 #include <QMessageBox>
 

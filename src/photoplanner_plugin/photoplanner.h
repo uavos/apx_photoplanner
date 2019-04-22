@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <memory>
-#include "Fact.h"
+#include "Fact/Fact.h"
 #include "borderpoints.h"
 #include "photoprints.h"
 #include "PhotoUavModel.h"

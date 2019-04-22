@@ -32,8 +32,8 @@ HEADERS += \
     photoprints.h \
     photoplanneredit.h
 
-INCLUDEPATH += /home/pavel/sources/build-apx-release/gcs/release/install-root/usr/lib/gcs/include/
-LIBS += -L/home/pavel/sources/build-apx-release/gcs/release/install-root/usr/lib/gcs/ \
+INCLUDEPATH += /home/pavel/sources/build-apx-release/packages/sdk/include
+LIBS += -L/home/pavel/sources/build-apx-release/packages/sdk/lib \
     -lApxCore \
     -lApxData
 
