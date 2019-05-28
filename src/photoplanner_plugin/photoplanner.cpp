@@ -94,10 +94,12 @@ void ApxPhotoplanner::calculatePhotoPlan()
             int px = m_photoplannerEdit->getLongitudinalOverlap();
             int py = m_photoplannerEdit->getTransverseOverlap();
             int extentBorder = m_photoplannerEdit->getExtentBorderValue();
+            bool withPhotoPrints = m_photoplannerEdit->getWithPhotoprints();
 
             aero_photo::AreaPhotoRegion region(m_borderPoints->getAllPoints());
             planner = std::make_unique<aero_photo::AreaPhotoPlanner>(uavModel, cameraModel, region);
-            static_cast<aero_photo::AreaPhotoPlanner*>(planner.get())->Calculate(altitude, px, py, azimuth, extentBorder);
+            static_cast<aero_photo::AreaPhotoPlanner*>(planner.get())->Calculate(altitude, px, py, azimuth,
+                                                                                 extentBorder, withPhotoPrints);
         }
         catch(std::exception &e)
         {
@@ -113,10 +115,12 @@ void ApxPhotoplanner::calculatePhotoPlan()
             int px = m_photoplannerEdit->getLongitudinalOverlap();
             int py = m_photoplannerEdit->getTransverseOverlap();
             int width = m_photoplannerEdit->getWidth();
+            bool withPhotoPrints = m_photoplannerEdit->getWithPhotoprints();
 
             aero_photo::LinearPhotoRegion region(m_borderPoints->getAllPoints());
             planner = std::make_unique<aero_photo::LinearPhotoPlanner>(uavModel, cameraModel, region);
-            static_cast<aero_photo::LinearPhotoPlanner*>(planner.get())->Calculate(altitude, px, py, width);
+            static_cast<aero_photo::LinearPhotoPlanner*>(planner.get())->Calculate(altitude, px, py, width,
+                                                                                   withPhotoPrints);
         }
         catch(std::exception &e)
         {

@@ -27,6 +27,7 @@ public:
     int getExtentBorderValue() const;
     int getWidth() const;
     int getVelocity() const;
+    bool getWithPhotoprints() const;
 
 private:
     std::unique_ptr<Fact> m_plannerParams;
@@ -46,6 +47,7 @@ private:
     std::unique_ptr<Fact> m_width;
     std::unique_ptr<Fact> m_runs;
     std::unique_ptr<Fact> m_reverseDirection;
+    std::unique_ptr<Fact> m_withPhotoprints;
     //camera
     std::unique_ptr<Fact> m_cameraName;
     std::unique_ptr<Fact> m_focusRange;

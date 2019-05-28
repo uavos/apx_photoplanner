@@ -26,6 +26,7 @@ PhotoplannerEdit::PhotoplannerEdit(Fact *parent):
     m_width(new Fact(m_plannerParams.get(), "width", "Width", "", Int)),
     m_runs(new Fact(m_plannerParams.get(), "runs", "Runs", "", Int)),
     m_reverseDirection(new Fact(m_plannerParams.get(), "reverse_direction", "Reverse direction", "", Bool)),
+    m_withPhotoprints(new Fact(m_plannerParams.get(), "with_photoprints", "With photoprints", "", Bool)),
     //camera
     m_cameraName(new Fact(m_cameraParams.get(), "camera_name", "Name", "", Text)),
     m_focusRange(new Fact(m_cameraParams.get(), "focus_range", "Focus range", "", Int)),
@@ -67,6 +68,7 @@ PhotoplannerEdit::PhotoplannerEdit(Fact *parent):
     m_maxRoll->setIcon("rotate-right");
     m_maneuverAlignment->setIcon("call-missed");
     m_maneuverR->setIcon("map-marker-distance");
+    m_withPhotoprints->setIcon("image-multiple");
 
     setIcon("settings");
     model()->setFlat(true);
@@ -102,6 +104,8 @@ PhotoplannerEdit::PhotoplannerEdit(Fact *parent):
 
     m_runs->setMin(1);
     m_runs->setMax(10);
+
+    m_withPhotoprints->setValue(false);
 
     m_focusRange->setMin(1);
     m_focusRange->setMax(100);
@@ -398,6 +402,11 @@ int PhotoplannerEdit::getWidth() const
 int PhotoplannerEdit::getVelocity() const
 {
     return m_flightSpeed->value().toInt();
+}
+
+bool PhotoplannerEdit::getWithPhotoprints() const
+{
+    return m_withPhotoprints->value().toBool();
 }
 
 void PhotoplannerEdit::saveCameraData()
