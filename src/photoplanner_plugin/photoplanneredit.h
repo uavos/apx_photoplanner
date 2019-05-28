@@ -24,7 +24,8 @@ public:
     int getAzimuth() const;
     int getLongitudinalOverlap() const;
     int getTransverseOverlap() const;
-    int getExtentBorderValue() const;
+    bool getExtentAlignment() const;
+    bool getManeuverAlignment() const;
     int getWidth() const;
     int getVelocity() const;
     bool getWithPhotoprints() const;

@@ -93,13 +93,17 @@ void ApxPhotoplanner::calculatePhotoPlan()
             int azimuth = m_photoplannerEdit->getAzimuth();
             int px = m_photoplannerEdit->getLongitudinalOverlap();
             int py = m_photoplannerEdit->getTransverseOverlap();
-            int extentBorder = m_photoplannerEdit->getExtentBorderValue();
+            bool extentBorder = m_photoplannerEdit->getExtentAlignment();
+            bool maneuverAlignment = m_photoplannerEdit->getManeuverAlignment();
             bool withPhotoPrints = m_photoplannerEdit->getWithPhotoprints();
+
+            aero_photo::CalculationParams::Instance().enlargeEntryRequired = extentBorder;
+            aero_photo::CalculationParams::Instance().maneuverAligmentRequired = maneuverAlignment;
 
             aero_photo::AreaPhotoRegion region(m_borderPoints->getAllPoints());
             planner = std::make_unique<aero_photo::AreaPhotoPlanner>(uavModel, cameraModel, region);
             static_cast<aero_photo::AreaPhotoPlanner*>(planner.get())->Calculate(altitude, px, py, azimuth,
-                                                                                 extentBorder, withPhotoPrints);
+                                                                                 1, withPhotoPrints);
         }
         catch(std::exception &e)
         {
@@ -115,7 +119,12 @@ void ApxPhotoplanner::calculatePhotoPlan()
             int px = m_photoplannerEdit->getLongitudinalOverlap();
             int py = m_photoplannerEdit->getTransverseOverlap();
             int width = m_photoplannerEdit->getWidth();
+            bool extentBorder = m_photoplannerEdit->getExtentAlignment();
+            bool maneuverAlignment = m_photoplannerEdit->getManeuverAlignment();
             bool withPhotoPrints = m_photoplannerEdit->getWithPhotoprints();
+
+            aero_photo::CalculationParams::Instance().enlargeEntryRequired = extentBorder;
+            aero_photo::CalculationParams::Instance().maneuverAligmentRequired = maneuverAlignment;
 
             aero_photo::LinearPhotoRegion region(m_borderPoints->getAllPoints());
             planner = std::make_unique<aero_photo::LinearPhotoPlanner>(uavModel, cameraModel, region);

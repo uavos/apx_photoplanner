@@ -389,9 +389,14 @@ int PhotoplannerEdit::getTransverseOverlap() const
     return m_transverseOverlap->value().toInt();
 }
 
-int PhotoplannerEdit::getExtentBorderValue() const
+bool PhotoplannerEdit::getExtentAlignment() const
 {
-    return m_extendAlignment->value().toInt();
+    return m_extendAlignment->value().toBool();
+}
+
+bool PhotoplannerEdit::getManeuverAlignment() const
+{
+    return m_maneuverAlignment->value().toBool();
 }
 
 int PhotoplannerEdit::getWidth() const
