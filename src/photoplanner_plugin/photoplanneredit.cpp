@@ -89,6 +89,7 @@ PhotoplannerEdit::PhotoplannerEdit(Fact *parent):
     m_altitude->setMin(5);
     m_altitude->setMax(5000);
     m_altitude->setUnits("m");
+    m_altitude->setValue(300);
 
     m_gsd->setMin(1);
     m_gsd->setMax(300);

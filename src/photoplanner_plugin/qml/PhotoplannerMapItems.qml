@@ -13,6 +13,11 @@ MapItemGroup {
     MapItemView {
         id: borderPointsView
         model: apx.tools.photoplanner.borderPoints
+        Connections {
+            target: apx.tools.photoplanner.borderPoints
+            onPointsChanged: pointsList = apx.tools.photoplanner.borderPoints.getAllPointsAsVariants()
+        }
+
         z: 1
         delegate: MapQuickItem {
             z: 1
@@ -32,24 +37,15 @@ MapItemGroup {
                 drag.axis: Drag.XAndYAxis
                 z: parent.z
                 cursorShape: drag.active ? Qt.ClosedHandCursor : Qt.OpenHandCursor
-                onReleased: {
-                    coord = coordinate
-                    var temp = root.pointsList
-                    temp[index] = coordinate
-                    root.pointsList = temp
+                drag.onActiveChanged: {
+                    if(!drag.active) {
+                        coord = coordinate
+                    }
                 }
-                onClicked: apx.tools.photoplanner.createRemoveDialog(borderPointDelegate.coordinate)
-            }
-            Component.onCompleted: {
-                var temp = root.pointsList
-                temp.splice(index, 0, coord)
-                root.pointsList = temp
-            }
-            Component.onDestruction: {
-                var index = root.pointsList.indexOf(coordinate)
-                var temp = root.pointsList
-                temp.splice(index, 1)
-                root.pointsList = temp
+                onClicked: {
+                    apx.tools.photoplanner.createEditor(id, borderPointDelegate.coordinate);
+                    apx.tools.photoplanner.point_edit.requestMenu({"closeOnActionTrigger":true});
+                }
             }
         }
     }
@@ -77,7 +73,7 @@ MapItemGroup {
     MapPolygon {
         id: polygon
         visible: apx.tools.photoplanner.missionType === "area"
-        path: root.pointsList
+        path: root.pointsList.length >= 3 ? root.pointsList : []
         color: "#8021be2b"
         opacity: 0.5
         border.width: 3
@@ -94,8 +90,9 @@ MapItemGroup {
     }
 
     Component.onCompleted: {
-        map.addMapItemView(borderPointsView)
-        map.addMapItemView(photoPrintsView)
-        map.addMapItem(polygon)
+        map.addMapItemView(borderPointsView);
+        map.addMapItemView(photoPrintsView);
+        map.addMapItem(polygon);
+        map.addMapItem(polyline);
     }
 }

@@ -46,14 +46,14 @@ QString ApxPhotoplanner::getMissionType() const
         return "unknown";
 }
 
-void ApxPhotoplanner::createRemoveDialog(QGeoCoordinate coordinate)
+void ApxPhotoplanner::createEditor(int id, QGeoCoordinate coordinate)
 {
-    auto button = QMessageBox::question(nullptr, "Remove", "Remove this point?<br>" + coordinate.toString(),
-                                        QMessageBox::Yes, QMessageBox::No);
-    if(button == QMessageBox::Yes)
-    {
-        m_borderPoints->removePoint(coordinate);
-    }
+    m_pointEdit = std::make_unique<PointEdit>(this, id, coordinate);
+    m_pointEdit->setIcon("settings");
+    connect(m_pointEdit.get(), &PointEdit::removed, this, [=]() { m_pointEdit = nullptr; });
+    connect(m_pointEdit.get(), &PointEdit::updatePointTriggered, m_borderPoints.get(), &BorderPoints::updatePoint);
+    connect(m_pointEdit.get(), &PointEdit::removePointTriggered, m_borderPoints.get(), &BorderPoints::removePoint);
+    ApxApp::jsync(this);
 }
 
 void ApxPhotoplanner::onLoadingFinished()
@@ -85,6 +85,7 @@ void ApxPhotoplanner::calculatePhotoPlan()
     std::unique_ptr<aero_photo::PhotoPlanner> planner;
     auto uavModel = m_photoplannerEdit->getUavModel();
     auto cameraModel = m_photoplannerEdit->getCameraModel();
+    auto mission = Vehicles::instance()->current()->f_mission;
     if(m_photoplannerEdit->getMissionType() == PhotoplannerEdit::mtArea)
     {
         try
@@ -108,6 +109,7 @@ void ApxPhotoplanner::calculatePhotoPlan()
         catch(std::exception &e)
         {
             apxDebug() << e.what();
+            mission->f_waypoints->f_clear->trigger();
             return;
         }
     }
@@ -134,6 +136,7 @@ void ApxPhotoplanner::calculatePhotoPlan()
         catch(std::exception &e)
         {
             apxDebug() << e.what();
+            mission->f_waypoints->f_clear->trigger();
             return;
         }
     }
@@ -146,7 +149,6 @@ void ApxPhotoplanner::calculatePhotoPlan()
 
     int velocity = m_photoplannerEdit->getVelocity();
     auto waypoints = planner->GetFlightPoints();
-    VehicleMission *mission = Vehicles::instance()->current()->f_mission;
     mission->f_waypoints->f_clear->trigger();
     for(auto w: waypoints)
     {

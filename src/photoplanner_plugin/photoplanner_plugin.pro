@@ -23,14 +23,16 @@ SOURCES += \
     photoplanner.cpp \
     borderpoints.cpp \
     photoprints.cpp \
-    photoplanneredit.cpp
+    photoplanneredit.cpp \
+    pointedit.cpp
 
 HEADERS += \
     photoplannerplugin.h \
     photoplanner.h \
     borderpoints.h \
     photoprints.h \
-    photoplanneredit.h
+    photoplanneredit.h \
+    pointedit.h
 
 INCLUDEPATH += /home/pavel/sources/build-apx-release/packages/sdk/include
 LIBS += -L/home/pavel/sources/build-apx-release/packages/sdk/lib \

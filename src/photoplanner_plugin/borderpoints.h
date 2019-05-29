@@ -9,12 +9,15 @@ class BorderPoints: public QAbstractListModel
     Q_OBJECT
 public:
     enum {
-        CoordinateRole = Qt::UserRole + 1
+        Id = Qt::UserRole + 1,
+        CoordinateRole
     };
     BorderPoints();
-    void appendPoint(const QGeoCoordinate &point);
-    void removePoint(QGeoCoordinate coordinate);
+    int appendPoint(const QGeoCoordinate &point);
+    void updatePoint(int id, const QGeoCoordinate &point);
+    void removePoint(int id);
     QVector<QGeoCoordinate> getAllPoints() const;
+    Q_INVOKABLE QVariantList getAllPointsAsVariants() const;
 
 protected:
     Qt::ItemFlags flags(const QModelIndex &index) const;
@@ -26,6 +29,9 @@ protected:
 private:
     QVector<QGeoCoordinate> m_points;
     QModelIndex m_rootIndex;
+
+signals:
+    void pointsChanged();
 };
 
 #endif // BORDERPOINTS_H
