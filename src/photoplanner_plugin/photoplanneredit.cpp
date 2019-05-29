@@ -21,7 +21,7 @@ PhotoplannerEdit::PhotoplannerEdit(Fact *parent):
     m_longitudinalOverlap(new Fact(m_plannerParams.get(), "longitudinal_overlap", "Longitudinal overlap", "", Int)),
     m_transverseOverlap(new Fact(m_plannerParams.get(), "transverse_overlap", "Transverse overlap", "", Int)),
     m_altitude(new Fact(m_plannerParams.get(), "altitude", "Altitude", "", Int)),
-    m_gsd(new Fact(m_plannerParams.get(), "gsd", "GSD", "", Int)),
+    m_gsd(new Fact(m_plannerParams.get(), "gsd", "GSD", "", Float)),
     m_azimuth(new Fact(m_plannerParams.get(), "azimuth", "Azimuth", "", Int)),
     m_width(new Fact(m_plannerParams.get(), "width", "Width", "", Int)),
     m_runs(new Fact(m_plannerParams.get(), "runs", "Runs", "", Int)),
@@ -29,11 +29,11 @@ PhotoplannerEdit::PhotoplannerEdit(Fact *parent):
     m_withPhotoprints(new Fact(m_plannerParams.get(), "with_photoprints", "With photoprints", "", Bool)),
     //camera
     m_cameraName(new Fact(m_cameraParams.get(), "camera_name", "Name", "", Text)),
-    m_focusRange(new Fact(m_cameraParams.get(), "focus_range", "Focus range", "", Int)),
+    m_focusRange(new Fact(m_cameraParams.get(), "focus_range", "Focus range", "", Float)),
     m_sensorLx(new Fact(m_cameraParams.get(), "sensor_lx", "Sensor lx", "", Float)),
     m_sensorLy(new Fact(m_cameraParams.get(), "sensor_ly", "Sensor ly", "", Float)),
-    m_sensorAx(new Fact(m_cameraParams.get(), "sensor_ax", "Sensor ax", "", Int)),
-    m_sensorAy(new Fact(m_cameraParams.get(), "sensor_ay", "Sensor ay", "", Int)),
+    m_sensorAx(new Fact(m_cameraParams.get(), "sensor_ax", "Sensor ax", "", Float)),
+    m_sensorAy(new Fact(m_cameraParams.get(), "sensor_ay", "Sensor ay", "", Float)),
     //uav
     m_uavName(new Fact(m_uavParams.get(), "uav_name", "Name", "", Text)),
     m_flightTime(new Fact(m_uavParams.get(), "flight_time", "Flight time", "", Int)),
@@ -91,7 +91,7 @@ PhotoplannerEdit::PhotoplannerEdit(Fact *parent):
     m_altitude->setUnits("m");
 
     m_gsd->setMin(1);
-    m_gsd->setMax(1000);
+    m_gsd->setMax(300);
     m_gsd->setUnits("sm/pix");
 
     m_azimuth->setMin(0);
@@ -218,7 +218,7 @@ int PhotoplannerEdit::calcGsd()
 int PhotoplannerEdit::calcAltitude()
 {
     auto model = getCameraModel();
-    int altitude = model.CalcH(m_gsd->value().toInt());
+    int altitude = model.CalcH(m_gsd->value().toFloat() / 100.0);
     return altitude;
 }
 
@@ -356,11 +356,11 @@ void PhotoplannerEdit::onCameraAnyParamChanged()
 
 aero_photo::PhotoCameraModel PhotoplannerEdit::getCameraModel()
 {
-    aero_photo::PhotoCameraModel model(m_focusRange->value().toInt() / 100.0,
-                                       m_sensorLx->value().toInt() / 100.0,
-                                       m_sensorLy->value().toInt() / 100.0,
-                                       m_sensorAx->value().toInt() / 100.0,
-                                       m_sensorAy->value().toInt() / 100.0);
+    aero_photo::PhotoCameraModel model(m_focusRange->value().toFloat() / 100.0,
+                                       m_sensorLx->value().toFloat() / 100.0,
+                                       m_sensorLy->value().toFloat() / 100.0,
+                                       m_sensorAx->value().toFloat(),
+                                       m_sensorAy->value().toFloat());
     return model;
 }
 
