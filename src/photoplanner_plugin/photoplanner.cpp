@@ -7,8 +7,6 @@
 #include "AreaPhotoPlanner.h"
 #include "LinearPhotoPlanner.h"
 #include "Mission/Waypoint.h"
-#include <iostream>
-#include <QMessageBox>
 
 ApxPhotoplanner::ApxPhotoplanner(Fact *parent):
     Fact(parent, "photoplanner", "Photoplanner", "", Group),
@@ -147,6 +145,7 @@ void ApxPhotoplanner::calculatePhotoPlan()
     std::transform(aeroPhotoPrints.begin(), aeroPhotoPrints.end(), std::back_inserter(photoPrints), lambda);
     m_photoPrints->setPrints(photoPrints);
 
+    bool useSpeedInWaypoint = m_photoplannerEdit->getUseSpeedInWaypoint();
     int velocity = m_photoplannerEdit->getVelocity();
     auto waypoints = planner->GetFlightPoints();
     mission->f_waypoints->f_clear->trigger();
@@ -157,7 +156,8 @@ void ApxPhotoplanner::calculatePhotoPlan()
         {
             wpItem->f_altitude->setValue(w.altitude());
             wpItem->f_type->setValue(w.type());
-            wpItem->f_actions->f_speed->setValue(velocity);
+            if(useSpeedInWaypoint)
+                wpItem->f_actions->f_speed->setValue(velocity);
             wpItem->f_actions->f_shot->setValue(w.shotDistance() > 0 ? "yes" : "no");
             wpItem->f_actions->f_dshot->setValue(w.shotDistance());
         }

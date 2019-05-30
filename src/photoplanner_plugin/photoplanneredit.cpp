@@ -38,6 +38,7 @@ PhotoplannerEdit::PhotoplannerEdit(Fact *parent):
     m_uavName(new Fact(m_uavParams.get(), "uav_name", "Name", "", Text)),
     m_flightTime(new Fact(m_uavParams.get(), "flight_time", "Flight time", "", Int)),
     m_flightSpeed(new Fact(m_uavParams.get(), "flight_speed", "Flight speed", "", Int)),
+    m_useSpeedInWaypoint(new Fact(m_uavParams.get(), "use_speed_int_waypoint", "Use speed in waypoint", "", Bool)),
     m_commRadius(new Fact(m_uavParams.get(), "comm_radius", "Comm radius", "", Int)),
     m_maxRoll(new Fact(m_uavParams.get(), "max_roll", "Max roll", "", Int)),
     m_maneuverR(new Fact(m_uavParams.get(), "maneuver_r", "Maneuver R", "", Int)),
@@ -51,6 +52,7 @@ PhotoplannerEdit::PhotoplannerEdit(Fact *parent):
     m_cameraName->setIcon("camera");
     m_uavName->setIcon("airplane");
     m_flightSpeed->setIcon("speedometer");
+    m_useSpeedInWaypoint->setIcon("check");
     m_flightTime->setIcon("clock");
     m_commRadius->setIcon("vector-radius");
     m_azimuth->setIcon("compass");
@@ -135,6 +137,8 @@ PhotoplannerEdit::PhotoplannerEdit(Fact *parent):
     m_flightSpeed->setMin(1);
     m_flightSpeed->setMax(200);
     m_flightSpeed->setUnits("m/s");
+
+    m_useSpeedInWaypoint->setValue(false);
 
     m_commRadius->setMin(1);
     m_commRadius->setMax(120);
@@ -408,6 +412,11 @@ int PhotoplannerEdit::getWidth() const
 int PhotoplannerEdit::getVelocity() const
 {
     return m_flightSpeed->value().toInt();
+}
+
+bool PhotoplannerEdit::getUseSpeedInWaypoint() const
+{
+    return m_useSpeedInWaypoint->value().toBool();
 }
 
 bool PhotoplannerEdit::getWithPhotoprints() const

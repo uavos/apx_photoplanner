@@ -28,6 +28,7 @@ public:
     bool getManeuverAlignment() const;
     int getWidth() const;
     int getVelocity() const;
+    bool getUseSpeedInWaypoint() const;
     bool getWithPhotoprints() const;
 
 private:
@@ -60,6 +61,7 @@ private:
     std::unique_ptr<Fact> m_uavName;
     std::unique_ptr<Fact> m_flightTime;
     std::unique_ptr<Fact> m_flightSpeed;
+    std::unique_ptr<Fact> m_useSpeedInWaypoint;
     std::unique_ptr<Fact> m_commRadius;
     std::unique_ptr<Fact> m_maxRoll;
     std::unique_ptr<Fact> m_maneuverR;
