@@ -3,7 +3,6 @@ import QtLocation 5.9
 import QtPositioning 5.6
 import QtQml 2.12
 
-
 MapItemGroup {
     id: root
     property var map: ui.map
@@ -87,6 +86,27 @@ MapItemGroup {
         line.color: "darkgreen"
         line.width: 3
         opacity: 0.5
+    }
+
+    Rectangle {
+        color: "#376479"
+        parent: ui.map.parent
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        width: stats.width
+        height: stats.height
+        opacity: 0.8
+        radius: 6
+        Text {
+            property var totalDistance: apx.tools.photoplanner.totalDistance
+            id: stats
+            anchors.centerIn: parent
+            textFormat: Text.RichText
+            font.bold: true
+            horizontalAlignment: Text.AlignHCenter
+            text: String("Photoplan<br>Mission length: %1m").arg(totalDistance)//"<br>Photo area: 300m<sup>2</sup>"
+            color: "white"
+        }
     }
 
     Component.onCompleted: {

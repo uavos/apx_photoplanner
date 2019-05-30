@@ -17,14 +17,17 @@ class ApxPhotoplanner: public Fact
     Q_PROPERTY(BorderPoints *borderPoints READ getBorderPoints CONSTANT)
     Q_PROPERTY(PhotoPrints *photoPrints READ getPhotoPrints CONSTANT)
     Q_PROPERTY(QString missionType READ getMissionType NOTIFY missionTypeChanged)
+    Q_PROPERTY(uint totalDistance READ getTotalDistance NOTIFY totalDistanceChanged)
 public:
     ApxPhotoplanner(Fact *parent = nullptr);
     BorderPoints* getBorderPoints();
     PhotoPrints* getPhotoPrints();
     QString getMissionType() const;
+    uint getTotalDistance() const;
     Q_INVOKABLE void createEditor(int id, QGeoCoordinate coordinate);
 
 private:
+    uint m_totalDistance;
     std::unique_ptr<BorderPoints> m_borderPoints;
     std::unique_ptr<PhotoPrints> m_photoPrints;
     std::unique_ptr<Fact> m_addPhotoplannerPoint;
@@ -43,6 +46,7 @@ private slots:
 
 signals:
     void missionTypeChanged();
+    void totalDistanceChanged();
 };
 
 #endif // APXPHOTOPLANNER_H

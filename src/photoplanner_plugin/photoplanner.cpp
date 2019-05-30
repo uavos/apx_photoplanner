@@ -10,6 +10,7 @@
 
 ApxPhotoplanner::ApxPhotoplanner(Fact *parent):
     Fact(parent, "photoplanner", "Photoplanner", "", Group),
+    m_totalDistance(0),
     m_borderPoints(new BorderPoints()),
     m_photoPrints(new PhotoPrints()),
     m_cameraModel(20.0 / 100, 15.0 / 100, 22.5 / 100, 3648, 5472),
@@ -42,6 +43,11 @@ QString ApxPhotoplanner::getMissionType() const
         return "linear";
     else
         return "unknown";
+}
+
+uint ApxPhotoplanner::getTotalDistance() const
+{
+    return m_totalDistance;
 }
 
 void ApxPhotoplanner::createEditor(int id, QGeoCoordinate coordinate)
@@ -164,6 +170,8 @@ void ApxPhotoplanner::calculatePhotoPlan()
         else
             apxDebug() << "Can't retrieve waypoint item";
     }
+    m_totalDistance = mission->f_waypoints->distance();
+    emit totalDistanceChanged();
 }
 
 void ApxPhotoplanner::onBorderPointsRowsInserted(const QModelIndex &parent, int first, int last)
