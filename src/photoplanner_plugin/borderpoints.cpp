@@ -1,12 +1,18 @@
 #include "borderpoints.h"
 
-#include <QDebug>
+#include <math.h>
+#include <QtMath>
+
+using namespace std::placeholders;
 
 BorderPoints::BorderPoints()
 {
     connect(this, &BorderPoints::rowsInserted, this, &BorderPoints::pointsChanged);
     connect(this, &BorderPoints::rowsRemoved, this, &BorderPoints::pointsChanged);
     connect(this, &BorderPoints::dataChanged, this, &BorderPoints::pointsChanged);
+    connect(this, &BorderPoints::rowsInserted, this, &BorderPoints::areaChanged);
+    connect(this, &BorderPoints::rowsRemoved, this, &BorderPoints::areaChanged);
+    connect(this, &BorderPoints::dataChanged, this, &BorderPoints::areaChanged);
 }
 
 int BorderPoints::appendPoint(const QGeoCoordinate &point)
@@ -41,6 +47,41 @@ QVariantList BorderPoints::getAllPointsAsVariants() const
     for(auto p: m_points)
         result.append(QVariant::fromValue(p));
     return result;
+}
+
+uint BorderPoints::getArea() const
+{
+    if(m_points.size() < 3)
+        return 0;
+    QVector<QGeoCoordinate> points;
+    QVector<QPointF> reprojectedPoints;
+    std::transform(m_points.begin(), m_points.end(), std::back_inserter(reprojectedPoints), &BorderPoints::reproject);
+    double area = 0;
+    for(int i = 0; i < reprojectedPoints.size(); i++)
+    {
+        int im1, ip1;
+        if(i == 0)
+        {
+            im1 = reprojectedPoints.size() - 1;
+            ip1 = i + 1;
+        }
+        else if(i == reprojectedPoints.size() - 1)
+        {
+            im1 = i - 1;
+            ip1 = 0;
+        }
+        else
+        {
+            im1 = i - 1;
+            ip1 = i + 1;
+        }
+        auto x = reprojectedPoints[i].x();
+        auto yp1 = reprojectedPoints[ip1].y();
+        auto ym1 = reprojectedPoints[im1].y();
+        area = area + (x * (yp1 - ym1));
+    }
+    area = std::abs(area) / 2;
+    return area;
 }
 
 Qt::ItemFlags BorderPoints::flags(const QModelIndex &index) const
@@ -91,3 +132,14 @@ QHash<int, QByteArray> BorderPoints::roleNames() const
     };
     return rolenames;
 }
+
+QPointF BorderPoints::reproject(const QGeoCoordinate &c)
+{
+    const float EARTH_RADIUS = 6371009;
+    const float LAT_DIST = M_PI * EARTH_RADIUS / 180.0;
+    float y = c.latitude() * LAT_DIST;
+    float x = c.longitude() * LAT_DIST * std::cos(qDegreesToRadians(c.latitude()));
+    return QPointF(x, y);
+}
+
+

@@ -89,6 +89,7 @@ MapItemGroup {
     }
 
     Rectangle {
+        id: photoplannerInfo
         color: "#376479"
         parent: ui.map.parent
         anchors.horizontalCenter: parent.horizontalCenter
@@ -99,12 +100,23 @@ MapItemGroup {
         radius: 6
         Text {
             property var totalDistance: apx.tools.photoplanner.totalDistance
+            property var area: apx.tools.photoplanner.borderPoints.area
             id: stats
             anchors.centerIn: parent
             textFormat: Text.RichText
             font.bold: true
             horizontalAlignment: Text.AlignHCenter
-            text: String("Photoplan<br>Mission length: %1m").arg(totalDistance)//"<br>Photo area: 300m<sup>2</sup>"
+            text: {
+                if(apx.tools.photoplanner.missionType == "linear")
+                    return String("Photoplan<br>Mission length: %1m").arg(totalDistance);
+                else if(apx.tools.photoplanner.missionType == "area")
+                {
+                    return "Photoplan<br>Mission length: " + totalDistance +
+                                  "m<br>Area: " + area + "m<sup>2</sup>"
+                    .arg(totalDistance)
+                    .arg(area);
+                }
+            }
             color: "white"
         }
     }
