@@ -13,7 +13,9 @@ ApxPhotoplanner::ApxPhotoplanner(Fact *parent):
     m_totalDistance(0),
     m_borderPoints(new BorderPoints()),
     m_photoPrints(new PhotoPrints()),
+    m_addPhotoplannerPoint(nullptr),
     m_photoplannerEdit(new PhotoplannerEdit(this)),
+    m_pointEdit(nullptr),
     m_cameraModel(20.0 / 100, 15.0 / 100, 22.5 / 100, 3648, 5472),
     m_uavModel(15, aero_photo::D2R(30))
 {
@@ -23,7 +25,7 @@ ApxPhotoplanner::ApxPhotoplanner(Fact *parent):
     connect(m_borderPoints.get(), &BorderPoints::rowsRemoved, this, &ApxPhotoplanner::onBorderPointsRowsRemoved);
     connect(m_borderPoints.get(), &BorderPoints::dataChanged, this, &ApxPhotoplanner::onBorderPointsDataChanged);
 
-    connect(m_photoplannerEdit.get(), &PhotoplannerEdit::applyClicked, this, &ApxPhotoplanner::calculatePhotoPlan);
+    connect(m_photoplannerEdit, &PhotoplannerEdit::applyClicked, this, &ApxPhotoplanner::calculatePhotoPlan);
 
     ApxApp::instance()->engine()->loadQml("qrc:/qml/PhotoplannerPlugin.qml");
 }
@@ -55,11 +57,13 @@ uint ApxPhotoplanner::getTotalDistance() const
 
 void ApxPhotoplanner::createEditor(int id, QGeoCoordinate coordinate)
 {
-    m_pointEdit = std::make_unique<PointEdit>(this, id, coordinate);
+    if(m_pointEdit)
+        delete m_pointEdit;
+    m_pointEdit = new PointEdit(this, id, coordinate);
     m_pointEdit->setIcon("settings");
-    connect(m_pointEdit.get(), &PointEdit::removed, this, [=]() { m_pointEdit = nullptr; });
-    connect(m_pointEdit.get(), &PointEdit::updatePointTriggered, m_borderPoints.get(), &BorderPoints::updatePoint);
-    connect(m_pointEdit.get(), &PointEdit::removePointTriggered, m_borderPoints.get(), &BorderPoints::removePoint);
+    connect(m_pointEdit, &PointEdit::removed, this, [=]() { m_pointEdit = nullptr; });
+    connect(m_pointEdit, &PointEdit::updatePointTriggered, m_borderPoints.get(), &BorderPoints::updatePoint);
+    connect(m_pointEdit, &PointEdit::removePointTriggered, m_borderPoints.get(), &BorderPoints::removePoint);
     ApxApp::jsync(this);
 }
 
@@ -69,10 +73,12 @@ void ApxPhotoplanner::onLoadingFinished()
     if(!mapAdd)
         return;
 
-    m_addPhotoplannerPoint = std::make_unique<Fact>(mapAdd, "photoplannerpoint", "Photoplanner point", "");
+    if(m_addPhotoplannerPoint)
+        delete m_addPhotoplannerPoint;
+    m_addPhotoplannerPoint = new Fact(mapAdd, "photoplannerpoint", "Photoplanner point", "");
     m_addPhotoplannerPoint->setIcon("map-marker-plus");
-    connect(m_addPhotoplannerPoint.get(), &Fact::triggered, this, &ApxPhotoplanner::onAddPhotoplannerPointTriggered);
-    connect(m_addPhotoplannerPoint.get(), &Fact::triggered, mapAdd->parentFact(), &Fact::actionTriggered);
+    connect(m_addPhotoplannerPoint, &Fact::triggered, this, &ApxPhotoplanner::onAddPhotoplannerPointTriggered);
+    connect(m_addPhotoplannerPoint, &Fact::triggered, mapAdd->parentFact(), &Fact::actionTriggered);
 }
 
 void ApxPhotoplanner::onAddPhotoplannerPointTriggered()
