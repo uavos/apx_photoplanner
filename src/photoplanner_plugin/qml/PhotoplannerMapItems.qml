@@ -111,8 +111,7 @@ MapItemGroup {
                     return String("Photoplan<br>Mission length: %1m").arg(totalDistance);
                 else if(apx.tools.photoplanner.missionType == "area")
                 {
-                    return "Photoplan<br>Mission length: " + totalDistance +
-                                  "m<br>Area: " + area + "m<sup>2</sup>"
+                    return String("Photoplan<br>Mission length: %1m<br>Area: %2m<sup>2</sup>")
                     .arg(totalDistance)
                     .arg(area);
                 }
