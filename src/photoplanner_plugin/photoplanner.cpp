@@ -13,6 +13,7 @@ ApxPhotoplanner::ApxPhotoplanner(Fact *parent):
     m_totalDistance(0),
     m_borderPoints(new BorderPoints()),
     m_photoPrints(new PhotoPrints()),
+    m_photoplannerEdit(new PhotoplannerEdit(this)),
     m_cameraModel(20.0 / 100, 15.0 / 100, 22.5 / 100, 3648, 5472),
     m_uavModel(15, aero_photo::D2R(30))
 {
@@ -21,6 +22,8 @@ ApxPhotoplanner::ApxPhotoplanner(Fact *parent):
     connect(m_borderPoints.get(), &BorderPoints::rowsInserted, this, &ApxPhotoplanner::onBorderPointsRowsInserted);
     connect(m_borderPoints.get(), &BorderPoints::rowsRemoved, this, &ApxPhotoplanner::onBorderPointsRowsRemoved);
     connect(m_borderPoints.get(), &BorderPoints::dataChanged, this, &ApxPhotoplanner::onBorderPointsDataChanged);
+
+    connect(m_photoplannerEdit.get(), &PhotoplannerEdit::applyClicked, this, &ApxPhotoplanner::calculatePhotoPlan);
 
     ApxApp::instance()->engine()->loadQml("qrc:/qml/PhotoplannerPlugin.qml");
 }
@@ -70,9 +73,6 @@ void ApxPhotoplanner::onLoadingFinished()
     m_addPhotoplannerPoint->setIcon("map-marker-plus");
     connect(m_addPhotoplannerPoint.get(), &Fact::triggered, this, &ApxPhotoplanner::onAddPhotoplannerPointTriggered);
     connect(m_addPhotoplannerPoint.get(), &Fact::triggered, mapAdd->parentFact(), &Fact::actionTriggered);
-
-    m_photoplannerEdit = std::make_unique<PhotoplannerEdit>(mapAdd);
-    connect(m_photoplannerEdit.get(), &PhotoplannerEdit::applyClicked, this, &ApxPhotoplanner::calculatePhotoPlan);
 }
 
 void ApxPhotoplanner::onAddPhotoplannerPointTriggered()
