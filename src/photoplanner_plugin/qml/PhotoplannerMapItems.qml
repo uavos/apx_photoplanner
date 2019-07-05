@@ -105,6 +105,7 @@ MapItemGroup {
             anchors.centerIn: parent
             textFormat: Text.RichText
             font.bold: true
+            font.pixelSize: font.pixelSize * ui.scale
             horizontalAlignment: Text.AlignHCenter
             text: {
                 if(apx.tools.photoplanner.missionType == "linear")
