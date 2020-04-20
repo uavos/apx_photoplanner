@@ -19,25 +19,34 @@ target.path = ~/Документы/UAVOS/Plugins/
 INSTALLS += target
 
 SOURCES += \
+    cameraedit.cpp \
     photoplannerplugin.cpp \
     photoplanner.cpp \
     borderpoints.cpp \
     photoprints.cpp \
-    photoplanneredit.cpp \
-    pointedit.cpp
+    planeredit.cpp \
+    pointedit.cpp \
+    uavedit.cpp
 
 HEADERS += \
+    cameraedit.h \
     photoplannerplugin.h \
     photoplanner.h \
     borderpoints.h \
     photoprints.h \
-    photoplanneredit.h \
-    pointedit.h
+    planeredit.h \
+    pointedit.h \
+    uavedit.h
 
-INCLUDEPATH += /home/pavel/sources/build-apx-release/packages/sdk/include
-LIBS += -L/home/pavel/sources/build-apx-release/packages/sdk/lib \
+INCLUDEPATH += /home/pavel/apx_sdk/include/ApxGcs
+INCLUDEPATH += /home/pavel/apx_sdk/include/ApxCore
+INCLUDEPATH += /home/pavel/apx_sdk/include/ApxData
+INCLUDEPATH += /home/pavel/apx_sdk/include/ApxShared
+LIBS += -L/home/pavel/apx_sdk/lib \
     -lApxCore \
-    -lApxData
+    -lApxData \
+    -lApxGcs \
+    -lApxShared
 
 INCLUDEPATH += ../photoplanner_math
 LIBS += -L../../bin \

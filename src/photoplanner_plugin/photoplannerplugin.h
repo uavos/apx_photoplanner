@@ -1,16 +1,18 @@
 #ifndef PHOTOPLANNERPLUGIN_H
 #define PHOTOPLANNERPLUGIN_H
 
-#include "ApxPluginInterface.h"
+#include "App/PluginInterface.h"
 
-class PhotoplannerPlugin: public ApxPluginInterface
+class PhotoplannerPlugin: public PluginInterface
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "com.uavos.gcs.ApxPluginInterface/1.0")
-    Q_INTERFACES(ApxPluginInterface)
+    Q_PLUGIN_METADATA(IID "com.uavos.gcs.PluginInterface/1.0")
+    Q_INTERFACES(PluginInterface)
 public:
     PhotoplannerPlugin();
-    QObject *createControl();
+    int flags() override;
+    QObject *createControl() override;
+    QStringList depends() override;
 };
 
 #endif // PHOTOPLANNERPLUGIN_H

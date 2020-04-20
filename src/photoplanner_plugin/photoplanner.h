@@ -8,8 +8,10 @@
 #include "photoprints.h"
 #include "PhotoUavModel.h"
 #include "PhotoCameraModel.h"
-#include "photoplanneredit.h"
 #include "pointedit.h"
+#include "planeredit.h"
+#include "cameraedit.h"
+#include "uavedit.h"
 
 class ApxPhotoplanner: public Fact
 {
@@ -26,13 +28,16 @@ public:
     uint getTotalDistance() const;
     Q_INVOKABLE void createEditor(int id, QGeoCoordinate coordinate);
 
+    PlanerEdit *f_planerEdit;
+    CameraEdit *f_cameraEdit;
+    Fact* f_addPhotoplannerPoint;
+    UavEdit *f_uavEdit;
+    PointEdit* f_pointEdit;
+
 private:
     uint m_totalDistance;
     std::unique_ptr<BorderPoints> m_borderPoints;
     std::unique_ptr<PhotoPrints> m_photoPrints;
-    Fact* m_addPhotoplannerPoint;
-    PhotoplannerEdit* m_photoplannerEdit;
-    PointEdit* m_pointEdit;
     aero_photo::PhotoCameraModel m_cameraModel;
     aero_photo::PhotoUavModel m_uavModel;
 

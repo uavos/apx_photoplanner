@@ -16,8 +16,8 @@ private:
     QGeoCoordinate m_coordinate;
     std::unique_ptr<Fact> m_latitude;
     std::unique_ptr<Fact> m_longitude;
-    std::unique_ptr<FactAction> m_update;
-    std::unique_ptr<FactAction> m_remove;
+    std::unique_ptr<Fact> m_update;
+    std::unique_ptr<Fact> m_remove;
 
 private slots:
     void onUpdateActionTriggered();

@@ -1,6 +1,6 @@
 #include "photoplanner.h"
 
-#include "ApxApp.h"
+#include "App/App.h"
 #include "App/AppRoot.h"
 #include "Vehicles/Vehicles.h"
 #include "Mission/VehicleMission.h"
@@ -9,25 +9,32 @@
 #include "Mission/Waypoint.h"
 
 ApxPhotoplanner::ApxPhotoplanner(Fact *parent):
-    Fact(parent, "photoplanner", "Photoplanner", "", Group),
+    Fact(parent, "photoplanner", "Photoplanner", "", Group, "settings"),
     m_totalDistance(0),
     m_borderPoints(new BorderPoints()),
     m_photoPrints(new PhotoPrints()),
-    m_addPhotoplannerPoint(nullptr),
-    m_photoplannerEdit(new PhotoplannerEdit(this)),
-    m_pointEdit(nullptr),
+    f_addPhotoplannerPoint(nullptr),
+    f_pointEdit(nullptr),
     m_cameraModel(20.0 / 100, 15.0 / 100, 22.5 / 100, 3648, 5472),
     m_uavModel(15, aero_photo::D2R(30))
 {
-    connect(ApxApp::instance(), &ApxApp::loadingFinished, this, &ApxPhotoplanner::onLoadingFinished);
+    f_cameraEdit = new CameraEdit(this);
+    f_uavEdit = new UavEdit(this);
+    f_planerEdit = new PlanerEdit(f_cameraEdit, this);
+    connect(App::instance(), &App::loadingFinished, this, &ApxPhotoplanner::onLoadingFinished);
 
     connect(m_borderPoints.get(), &BorderPoints::rowsInserted, this, &ApxPhotoplanner::onBorderPointsRowsInserted);
     connect(m_borderPoints.get(), &BorderPoints::rowsRemoved, this, &ApxPhotoplanner::onBorderPointsRowsRemoved);
     connect(m_borderPoints.get(), &BorderPoints::dataChanged, this, &ApxPhotoplanner::onBorderPointsDataChanged);
 
-    connect(m_photoplannerEdit, &PhotoplannerEdit::applyClicked, this, &ApxPhotoplanner::calculatePhotoPlan);
+    connect(f_planerEdit, &PlanerEdit::cameraChanged, f_cameraEdit, &CameraEdit::onCurrentCameraChanged);
+    connect(f_planerEdit, &PlanerEdit::uavChanged, f_uavEdit, &UavEdit::onCurrentUavChanged);
 
-    ApxApp::instance()->engine()->loadQml("qrc:/qml/PhotoplannerPlugin.qml");
+    connect(f_uavEdit->f_update, &Fact::triggered, this, &ApxPhotoplanner::calculatePhotoPlan);
+    connect(f_cameraEdit->f_update, &Fact::triggered, this, &ApxPhotoplanner::calculatePhotoPlan);
+    connect(f_planerEdit->f_update, &Fact::triggered, this, &ApxPhotoplanner::calculatePhotoPlan);
+
+    App::instance()->engine()->loadQml("qrc:/qml/PhotoplannerPlugin.qml", {});
 }
 
 BorderPoints *ApxPhotoplanner::getBorderPoints()
@@ -42,9 +49,9 @@ PhotoPrints *ApxPhotoplanner::getPhotoPrints()
 
 QString ApxPhotoplanner::getMissionType() const
 {
-    if(m_photoplannerEdit->getMissionType() == PhotoplannerEdit::mtArea)
+    if(f_planerEdit->getMissionType() == PlanerEdit::mtArea)
         return "area";
-    else if(m_photoplannerEdit->getMissionType() == PhotoplannerEdit::mtLinear)
+    else if(f_planerEdit->getMissionType() == PlanerEdit::mtLinear)
         return "linear";
     else
         return "unknown";
@@ -57,33 +64,32 @@ uint ApxPhotoplanner::getTotalDistance() const
 
 void ApxPhotoplanner::createEditor(int id, QGeoCoordinate coordinate)
 {
-    if(m_pointEdit)
-        delete m_pointEdit;
-    m_pointEdit = new PointEdit(this, id, coordinate);
-    m_pointEdit->setIcon("settings");
-    connect(m_pointEdit, &PointEdit::removed, this, [=]() { m_pointEdit = nullptr; });
-    connect(m_pointEdit, &PointEdit::updatePointTriggered, m_borderPoints.get(), &BorderPoints::updatePoint);
-    connect(m_pointEdit, &PointEdit::removePointTriggered, m_borderPoints.get(), &BorderPoints::removePoint);
-    ApxApp::jsync(this);
+    f_pointEdit = new PointEdit(this, id, coordinate);
+    f_pointEdit->setIcon("settings");
+    connect(f_pointEdit, &PointEdit::removed, this, [=]() { f_pointEdit = nullptr; });
+    connect(f_pointEdit, &PointEdit::updatePointTriggered, m_borderPoints.get(), &BorderPoints::updatePoint);
+    connect(f_pointEdit, &PointEdit::removePointTriggered, m_borderPoints.get(), &BorderPoints::removePoint);
+    f_pointEdit->trigger();
+    App::jsync(this);
 }
 
 void ApxPhotoplanner::onLoadingFinished()
 {
-    Fact *mapAdd = AppRoot::instance()->findChild("apx.tools.map.add");
+    Fact *mapAdd = AppRoot::instance()->findChild("apx.tools.missionplanner.add");
     if(!mapAdd)
         return;
 
-    if(m_addPhotoplannerPoint)
-        delete m_addPhotoplannerPoint;
-    m_addPhotoplannerPoint = new Fact(mapAdd, "photoplannerpoint", "Photoplanner point", "");
-    m_addPhotoplannerPoint->setIcon("map-marker-plus");
-    connect(m_addPhotoplannerPoint, &Fact::triggered, this, &ApxPhotoplanner::onAddPhotoplannerPointTriggered);
-    connect(m_addPhotoplannerPoint, &Fact::triggered, mapAdd->parentFact(), &Fact::actionTriggered);
+    if(f_addPhotoplannerPoint)
+        delete f_addPhotoplannerPoint;
+    f_addPhotoplannerPoint = new Fact(mapAdd, "photoplannerpoint", "Photoplanner point", "", Fact::CloseOnTrigger);
+    f_addPhotoplannerPoint->setIcon("map-marker-plus");
+    connect(f_addPhotoplannerPoint, &Fact::triggered, this, &ApxPhotoplanner::onAddPhotoplannerPointTriggered);
+    connect(f_addPhotoplannerPoint, &Fact::triggered, mapAdd->parentFact(), &Fact::triggered);
 }
 
 void ApxPhotoplanner::onAddPhotoplannerPointTriggered()
 {
-    Fact *fMap = AppRoot::instance()->findChild("apx.tools.map");
+    Fact *fMap = AppRoot::instance()->findChild("apx.tools.missionplanner");
     QGeoCoordinate coordinate = fMap->property("clickCoordinate").value<QGeoCoordinate>();
     m_borderPoints->appendPoint(coordinate);
 }
@@ -93,20 +99,20 @@ void ApxPhotoplanner::calculatePhotoPlan()
     emit missionTypeChanged();
 
     std::unique_ptr<aero_photo::PhotoPlanner> planner;
-    auto uavModel = m_photoplannerEdit->getUavModel();
-    auto cameraModel = m_photoplannerEdit->getCameraModel();
+    auto uavModel = f_uavEdit->getUavModel();
+    auto cameraModel = f_cameraEdit->getCameraModel();
     auto mission = Vehicles::instance()->current()->f_mission;
-    if(m_photoplannerEdit->getMissionType() == PhotoplannerEdit::mtArea)
+    if(f_planerEdit->getMissionType() == PlanerEdit::mtArea)
     {
         try
         {
-            int altitude = m_photoplannerEdit->getAltitude();
-            int azimuth = m_photoplannerEdit->getAzimuth();
-            int px = m_photoplannerEdit->getLongitudinalOverlap();
-            int py = m_photoplannerEdit->getTransverseOverlap();
-            bool extentBorder = m_photoplannerEdit->getExtentAlignment();
-            bool maneuverAlignment = m_photoplannerEdit->getManeuverAlignment();
-            bool withPhotoPrints = m_photoplannerEdit->getWithPhotoprints();
+            int altitude = f_planerEdit->getAltitude();
+            int azimuth = f_planerEdit->getAzimuth();
+            int px = f_planerEdit->getLongitudinalOverlap();
+            int py = f_planerEdit->getTransverseOverlap();
+            bool extentBorder = f_planerEdit->getExtentAlignment();
+            bool maneuverAlignment = f_planerEdit->getManeuverAlignment();
+            bool withPhotoPrints = f_planerEdit->getWithPhotoprints();
 
             aero_photo::CalculationParams::Instance().enlargeEntryRequired = extentBorder;
             aero_photo::CalculationParams::Instance().maneuverAligmentRequired = maneuverAlignment;
@@ -123,17 +129,17 @@ void ApxPhotoplanner::calculatePhotoPlan()
             return;
         }
     }
-    else if(m_photoplannerEdit->getMissionType() == PhotoplannerEdit::mtLinear)
+    else if(f_planerEdit->getMissionType() == PlanerEdit::mtLinear)
     {
         try
         {
-            int altitude = m_photoplannerEdit->getAltitude();
-            int px = m_photoplannerEdit->getLongitudinalOverlap();
-            int py = m_photoplannerEdit->getTransverseOverlap();
-            int width = m_photoplannerEdit->getWidth();
-            bool extentBorder = m_photoplannerEdit->getExtentAlignment();
-            bool maneuverAlignment = m_photoplannerEdit->getManeuverAlignment();
-            bool withPhotoPrints = m_photoplannerEdit->getWithPhotoprints();
+            int altitude = f_planerEdit->getAltitude();
+            int px = f_planerEdit->getLongitudinalOverlap();
+            int py = f_planerEdit->getTransverseOverlap();
+            int width = f_planerEdit->getWidth();
+            bool extentBorder = f_planerEdit->getExtentAlignment();
+            bool maneuverAlignment = f_planerEdit->getManeuverAlignment();
+            bool withPhotoPrints = f_planerEdit->getWithPhotoprints();
 
             aero_photo::CalculationParams::Instance().enlargeEntryRequired = extentBorder;
             aero_photo::CalculationParams::Instance().maneuverAligmentRequired = maneuverAlignment;
@@ -157,8 +163,8 @@ void ApxPhotoplanner::calculatePhotoPlan()
     std::transform(aeroPhotoPrints.begin(), aeroPhotoPrints.end(), std::back_inserter(photoPrints), lambda);
     m_photoPrints->setPrints(photoPrints);
 
-    bool useSpeedInWaypoint = m_photoplannerEdit->getUseSpeedInWaypoint();
-    int velocity = m_photoplannerEdit->getVelocity();
+    bool useSpeedInWaypoint = f_uavEdit->getUseSpeedInWaypoint();
+    int velocity = f_uavEdit->getVelocity();
     auto waypoints = planner->GetFlightPoints();
     mission->f_waypoints->f_clear->trigger();
     for(auto w: waypoints)
