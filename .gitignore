@@ -8,3 +8,4 @@ obj/*
 qrc_*.cpp
 *.deb
 *.stash
+build
