@@ -43,7 +43,6 @@ MapItemGroup {
                 }
                 onClicked: {
                     apx.tools.photoplanner.createEditor(id, borderPointDelegate.coordinate);
-//                    apx.tools.photoplanner.point_edit.requestMenu({"closeOnActionTrigger":true});
                 }
             }
         }

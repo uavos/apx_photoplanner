@@ -64,7 +64,7 @@ uint ApxPhotoplanner::getTotalDistance() const
 
 void ApxPhotoplanner::createEditor(int id, QGeoCoordinate coordinate)
 {
-    f_pointEdit = new PointEdit(this, id, coordinate);
+    f_pointEdit = new PointEdit(nullptr, id, coordinate);
     f_pointEdit->setIcon("settings");
     connect(f_pointEdit, &PointEdit::removed, this, [=]() { f_pointEdit = nullptr; });
     connect(f_pointEdit, &PointEdit::updatePointTriggered, m_borderPoints.get(), &BorderPoints::updatePoint);
