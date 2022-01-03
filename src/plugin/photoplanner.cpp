@@ -204,6 +204,8 @@ void ApxPhotoplanner::onBorderPointsDataChanged(const QModelIndex &topLeft, cons
 
 void ApxPhotoplanner::onMissionEmptyChanged()
 {
-    if(Vehicles::instance()->current()->f_mission->empty())
+    if(Vehicles::instance()->current()->f_mission->empty()) {
         m_borderPoints->clear();
+        m_photoPrints->setPrints({});
+    }
 }
