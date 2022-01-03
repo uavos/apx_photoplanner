@@ -10,9 +10,11 @@ BorderPoints::BorderPoints()
     connect(this, &BorderPoints::rowsInserted, this, &BorderPoints::pointsChanged);
     connect(this, &BorderPoints::rowsRemoved, this, &BorderPoints::pointsChanged);
     connect(this, &BorderPoints::dataChanged, this, &BorderPoints::pointsChanged);
+    connect(this, &BorderPoints::modelReset, this, &BorderPoints::pointsChanged);
     connect(this, &BorderPoints::rowsInserted, this, &BorderPoints::areaChanged);
     connect(this, &BorderPoints::rowsRemoved, this, &BorderPoints::areaChanged);
     connect(this, &BorderPoints::dataChanged, this, &BorderPoints::areaChanged);
+    connect(this, &BorderPoints::modelReset, this, &BorderPoints::areaChanged);
 }
 
 int BorderPoints::appendPoint(const QGeoCoordinate &point)
@@ -34,6 +36,13 @@ void BorderPoints::removePoint(int id)
     beginRemoveRows(m_rootIndex, id, id);
     m_points.removeAt(id);
     endRemoveRows();
+}
+
+void BorderPoints::clear()
+{
+    beginResetModel();
+    m_points.clear();
+    endResetModel();
 }
 
 QVector<QGeoCoordinate> BorderPoints::getAllPoints() const

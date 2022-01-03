@@ -46,6 +46,7 @@ private slots:
     void onBorderPointsRowsInserted(const QModelIndex &parent, int first, int last);
     void onBorderPointsRowsRemoved(const QModelIndex &parent, int first, int last);
     void onBorderPointsDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles);
+    void onMissionEmptyChanged();
     void calculatePhotoPlan();
 
 signals:

@@ -17,6 +17,7 @@ public:
     int appendPoint(const QGeoCoordinate &point);
     void updatePoint(int id, const QGeoCoordinate &point);
     void removePoint(int id);
+    void clear();
     QVector<QGeoCoordinate> getAllPoints() const;
     Q_INVOKABLE QVariantList getAllPointsAsVariants() const;
     uint getArea() const;
