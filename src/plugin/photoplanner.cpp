@@ -10,11 +10,11 @@
 
 ApxPhotoplanner::ApxPhotoplanner(Fact *parent):
     Fact(parent, "photoplanner", "Photoplanner", "", Group, "settings"),
+    f_addPhotoplannerPoint(nullptr),
+    f_pointEdit(nullptr),
     m_totalDistance(0),
     m_borderPoints(new BorderPoints()),
     m_photoPrints(new PhotoPrints()),
-    f_addPhotoplannerPoint(nullptr),
-    f_pointEdit(nullptr),
     m_cameraModel(20.0 / 100, 15.0 / 100, 22.5 / 100, 3648, 5472),
     m_uavModel(15, qDegreesToRadians(30.0))
 {
@@ -159,6 +159,7 @@ void ApxPhotoplanner::calculatePhotoPlan()
     int velocity = f_uavEdit->getVelocity();
     auto waypoints = planner->GetFlightPoints();
     mission->f_waypoints->f_clear->trigger();
+    QString shotText;
     for(auto w: waypoints) {
         Waypoint *wpItem = dynamic_cast<Waypoint *>(mission->f_waypoints->addObject(w));
         if(wpItem) {
@@ -166,7 +167,15 @@ void ApxPhotoplanner::calculatePhotoPlan()
             wpItem->f_type->setValue(w.type());
             if(useSpeedInWaypoint)
                 wpItem->f_actions->f_speed->setValue(velocity);
-            wpItem->f_actions->f_shot->setValue(w.shotDistance() > 0 ? "single" : "no");
+
+            if(w.shotDistance() > 0)
+                wpItem->f_actions->f_shot->setValue("start");
+            else if (shotText == "start")
+                wpItem->f_actions->f_shot->setValue("stop");
+            else
+                wpItem->f_actions->f_shot->setValue("no");
+
+            shotText = wpItem->f_actions->f_shot->text();
             wpItem->f_actions->f_dshot->setValue(w.shotDistance());
         } else
             apxDebug() << "Can't retrieve waypoint item";
